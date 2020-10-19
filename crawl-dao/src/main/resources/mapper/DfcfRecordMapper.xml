@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zqz.dao.mapper.DfcfRecordMapper">
+  <resultMap id="BaseResultMap" type="com.zqz.dao.entity.DfcfRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="stock_market" jdbcType="VARCHAR" property="stockMarket" />
+    <result column="stock_rank" jdbcType="VARCHAR" property="stockRank" />
+    <result column="stock_code" jdbcType="VARCHAR" property="stockCode" />
+    <result column="stock_name" jdbcType="VARCHAR" property="stockName" />
+    <result column="price_new" jdbcType="DECIMAL" property="priceNew" />
+    <result column="stock_change" jdbcType="DECIMAL" property="stockChange" />
+    <result column="process_date" jdbcType="DATE" property="processDate" />
+    <result column="main_net_inflow_amount" jdbcType="DECIMAL" property="mainNetInflowAmount" />
+    <result column="main_net_proportion" jdbcType="DECIMAL" property="mainNetProportion" />
+    <result column="super_big_part_net_inFlow_amount" jdbcType="DECIMAL" property="superBigPartNetInflowAmount" />
+    <result column="super_big_part_net_proportion" jdbcType="DECIMAL" property="superBigPartNetProportion" />
+    <result column="big_part_net_inFlow_amount" jdbcType="DECIMAL" property="bigPartNetInflowAmount" />
+    <result column="big_part_net_proportion" jdbcType="DECIMAL" property="bigPartNetProportion" />
+    <result column="middle_part_net_inFlow_amount" jdbcType="DECIMAL" property="middlePartNetInflowAmount" />
+    <result column="middle_part_net_proportion" jdbcType="DECIMAL" property="middlePartNetProportion" />
+    <result column="litter_part_net_inFlow_amount" jdbcType="DECIMAL" property="litterPartNetInflowAmount" />
+    <result column="litter_part_net_proportion" jdbcType="DECIMAL" property="litterPartNetProportion" />
+    <result column="stock_page" jdbcType="INTEGER" property="stockPage" />
+    <result column="count_time" jdbcType="TIMESTAMP" property="countTime" />
+    <result column="time_version" jdbcType="VARCHAR" property="timeVersion" />
+    <result column="crawler_version" jdbcType="VARCHAR" property="crawlerVersion" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.zqz.dao.entity.DfcfRecord">
+    <result column="someInfo" jdbcType="LONGVARCHAR" property="someinfo" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, stock_market, stock_rank, stock_code, stock_name, price_new, stock_change, process_date, 
+    main_net_inflow_amount, main_net_proportion, super_big_part_net_inFlow_amount, super_big_part_net_proportion, 
+    big_part_net_inFlow_amount, big_part_net_proportion, middle_part_net_inFlow_amount, 
+    middle_part_net_proportion, litter_part_net_inFlow_amount, litter_part_net_proportion, 
+    stock_page, count_time, time_version, crawler_version, create_time, update_time
+  </sql>
+  <sql id="Blob_Column_List">
+    someInfo
+  </sql>
+
+  <insert id="insert" parameterType="com.zqz.dao.entity.DfcfRecord">
+    insert into dfcf_record (stock_market, stock_rank, stock_code,
+      stock_name, price_new, stock_change, 
+      process_date, main_net_inflow_amount, main_net_proportion, 
+      super_big_part_net_inFlow_amount, super_big_part_net_proportion, 
+      big_part_net_inFlow_amount, big_part_net_proportion, 
+      middle_part_net_inFlow_amount, middle_part_net_proportion, 
+      litter_part_net_inFlow_amount, litter_part_net_proportion, 
+      stock_page, count_time, time_version, 
+      crawler_version, create_time, update_time, 
+      someInfo)
+    values (#{stockMarket,jdbcType=VARCHAR}, #{stockRank,jdbcType=VARCHAR}, #{stockCode,jdbcType=VARCHAR}, 
+      #{stockName,jdbcType=VARCHAR}, #{priceNew,jdbcType=DECIMAL}, #{stockChange,jdbcType=DECIMAL}, 
+      #{processDate,jdbcType=DATE}, #{mainNetInflowAmount,jdbcType=DECIMAL}, #{mainNetProportion,jdbcType=DECIMAL}, 
+      #{superBigPartNetInflowAmount,jdbcType=DECIMAL}, #{superBigPartNetProportion,jdbcType=DECIMAL}, 
+      #{bigPartNetInflowAmount,jdbcType=DECIMAL}, #{bigPartNetProportion,jdbcType=DECIMAL}, 
+      #{middlePartNetInflowAmount,jdbcType=DECIMAL}, #{middlePartNetProportion,jdbcType=DECIMAL}, 
+      #{litterPartNetInflowAmount,jdbcType=DECIMAL}, #{litterPartNetProportion,jdbcType=DECIMAL}, 
+      #{stockPage,jdbcType=INTEGER}, #{countTime,jdbcType=TIMESTAMP}, #{timeVersion,jdbcType=VARCHAR}, 
+      #{crawlerVersion,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{someinfo,jdbcType=LONGVARCHAR})
+  </insert>
+
+</mapper>
