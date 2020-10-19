@@ -5,6 +5,8 @@ import com.zqz.dao.mapper.DfcfRecordMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: zqz
@@ -18,5 +20,17 @@ public class DfcfRecordService {
 
     public int insert(DfcfRecord record){
         return mapper.insert(record);
+    }
+
+    public List<DfcfRecord> selectByTimeVersion(String stockCode, String timeVersion) {
+        return mapper.selectByTimeVersion(stockCode, timeVersion);
+    }
+
+    public int updateByPrimaryKeySelective(DfcfRecord record) {
+        return mapper.updateByPrimaryKeySelective(record);
+    }
+
+    public List<DfcfRecord> getRecordByProcessDate(Date date) {
+        return mapper.getRecordByProcessDate(date);
     }
 }

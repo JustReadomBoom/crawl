@@ -24,8 +24,8 @@
     <result column="count_time" jdbcType="TIMESTAMP" property="countTime" />
     <result column="time_version" jdbcType="VARCHAR" property="timeVersion" />
     <result column="crawler_version" jdbcType="VARCHAR" property="crawlerVersion" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="c_time" jdbcType="TIMESTAMP" property="cTime" />
+    <result column="u_time" jdbcType="TIMESTAMP" property="uTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.zqz.dao.entity.DfcfRecord">
     <result column="someInfo" jdbcType="LONGVARCHAR" property="someinfo" />
@@ -35,7 +35,7 @@
     main_net_inflow_amount, main_net_proportion, super_big_part_net_inFlow_amount, super_big_part_net_proportion, 
     big_part_net_inFlow_amount, big_part_net_proportion, middle_part_net_inFlow_amount, 
     middle_part_net_proportion, litter_part_net_inFlow_amount, litter_part_net_proportion, 
-    stock_page, count_time, time_version, crawler_version, create_time, update_time
+    stock_page, count_time, time_version, crawler_version, c_time, u_time
   </sql>
   <sql id="Blob_Column_List">
     someInfo
@@ -50,8 +50,7 @@
       middle_part_net_inFlow_amount, middle_part_net_proportion, 
       litter_part_net_inFlow_amount, litter_part_net_proportion, 
       stock_page, count_time, time_version, 
-      crawler_version, create_time, update_time, 
-      someInfo)
+      crawler_version, someInfo)
     values (#{stockMarket,jdbcType=VARCHAR}, #{stockRank,jdbcType=VARCHAR}, #{stockCode,jdbcType=VARCHAR}, 
       #{stockName,jdbcType=VARCHAR}, #{priceNew,jdbcType=DECIMAL}, #{stockChange,jdbcType=DECIMAL}, 
       #{processDate,jdbcType=DATE}, #{mainNetInflowAmount,jdbcType=DECIMAL}, #{mainNetProportion,jdbcType=DECIMAL}, 
@@ -60,8 +59,95 @@
       #{middlePartNetInflowAmount,jdbcType=DECIMAL}, #{middlePartNetProportion,jdbcType=DECIMAL}, 
       #{litterPartNetInflowAmount,jdbcType=DECIMAL}, #{litterPartNetProportion,jdbcType=DECIMAL}, 
       #{stockPage,jdbcType=INTEGER}, #{countTime,jdbcType=TIMESTAMP}, #{timeVersion,jdbcType=VARCHAR}, 
-      #{crawlerVersion,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{someinfo,jdbcType=LONGVARCHAR})
+      #{crawlerVersion,jdbcType=VARCHAR}, #{someinfo,jdbcType=LONGVARCHAR})
   </insert>
+
+  <select id="selectByTimeVersion" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM dfcf_record
+    WHERE time_version = #{timeVersion}
+    AND stock_code = #{stockCode};
+  </select>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.zqz.dao.entity.DfcfRecord">
+    update dfcf_record
+    <set>
+      <if test="stockMarket != null">
+        stock_market = #{stockMarket,jdbcType=VARCHAR},
+      </if>
+      <if test="stockRank != null">
+        stock_rank = #{stockRank,jdbcType=VARCHAR},
+      </if>
+      <if test="stockCode != null">
+        stock_code = #{stockCode,jdbcType=VARCHAR},
+      </if>
+      <if test="stockName != null">
+        stock_name = #{stockName,jdbcType=VARCHAR},
+      </if>
+      <if test="priceNew != null">
+        price_new = #{priceNew,jdbcType=DECIMAL},
+      </if>
+      <if test="stockChange != null">
+        stock_change = #{stockChange,jdbcType=DECIMAL},
+      </if>
+      <if test="processDate != null">
+        process_date = #{processDate,jdbcType=DATE},
+      </if>
+      <if test="mainNetInflowAmount != null">
+        main_net_inflow_amount = #{mainNetInflowAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="mainNetProportion != null">
+        main_net_proportion = #{mainNetProportion,jdbcType=DECIMAL},
+      </if>
+      <if test="superBigPartNetInflowAmount != null">
+        super_big_part_net_inFlow_amount = #{superBigPartNetInflowAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="superBigPartNetProportion != null">
+        super_big_part_net_proportion = #{superBigPartNetProportion,jdbcType=DECIMAL},
+      </if>
+      <if test="bigPartNetInflowAmount != null">
+        big_part_net_inFlow_amount = #{bigPartNetInflowAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="bigPartNetProportion != null">
+        big_part_net_proportion = #{bigPartNetProportion,jdbcType=DECIMAL},
+      </if>
+      <if test="middlePartNetInflowAmount != null">
+        middle_part_net_inFlow_amount = #{middlePartNetInflowAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="middlePartNetProportion != null">
+        middle_part_net_proportion = #{middlePartNetProportion,jdbcType=DECIMAL},
+      </if>
+      <if test="litterPartNetInflowAmount != null">
+        litter_part_net_inFlow_amount = #{litterPartNetInflowAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="litterPartNetProportion != null">
+        litter_part_net_proportion = #{litterPartNetProportion,jdbcType=DECIMAL},
+      </if>
+      <if test="stockPage != null">
+        stock_page = #{stockPage,jdbcType=INTEGER},
+      </if>
+      <if test="countTime != null">
+        count_time = #{countTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="timeVersion != null">
+        time_version = #{timeVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="crawlerVersion != null">
+        crawler_version = #{crawlerVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="someinfo != null">
+        someInfo = #{someinfo,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="getRecordByProcessDate">
+    select
+    <include refid="Base_Column_List" />
+    FROM dfcf_record
+    where process_date = #{date}
+  </select>
 
 </mapper>

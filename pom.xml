@@ -18,7 +18,6 @@
         <module>crawl-common</module>
         <module>crawl-dao</module>
         <module>crawl-service</module>
-        <module>crawl-cronjob</module>
         <module>crawl-web</module>
     </modules>
 
