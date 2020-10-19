@@ -51,7 +51,7 @@ public class DfcfDataParseService {
             String jsName = FieldConstant.JS_NAME.replace(FieldConstant.JS_DATA, CommonUtil.randomJSCode());
             HttpGet httpGet = createDFCFHttpGet(jsName, dayKey, stockType, 1, FieldConstant.DATA_TYPE_KEY, FieldConstant.DAY_KEY);
             String result = clientUtils.executeWithResult(httpGet, "utf-8");
-            log.info("------> 抓取东方财富-股市[{}]-排行榜[{}]的个股资金流的数据, 返回的结果为[{}]", stockType, FieldConstant.DAY_KEY, result);
+            log.info("------> 抓取东方财富-股市[{}]-排行榜[{}]的个股资金流的数据, 返回的结果为[{}]", type, FieldConstant.DAY_KEY, result);
             String[] s1 = result.split("data:");
             String data1 = s1[0];
             int a1 = data1.indexOf("pages:");
