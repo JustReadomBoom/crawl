@@ -12,7 +12,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum StockTypeEnum {
 
-    ALL("全部股票", "C._AB"),
+//    ALL("全部股票", "C._AB"),
     SH_SZ_A("沪深A股", "C._A"),
     SH_A("沪市A股", "C.2"),
     SZ_A("深市A股", "C._SZAME"),
@@ -31,6 +31,18 @@ public enum StockTypeEnum {
         for (StockTypeEnum enumInstance : values()) {
             if (enumInstance.type.equals(type)) {
                 return enumInstance.desc;
+            }
+        }
+        return null;
+    }
+
+    public static String getTypeByDesc(String desc) {
+        if(desc == null) {
+            return null;
+        }
+        for (StockTypeEnum enumInstance : values()) {
+            if (enumInstance.desc.equals(desc)) {
+                return enumInstance.type;
             }
         }
         return null;

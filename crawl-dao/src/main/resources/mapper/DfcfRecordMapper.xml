@@ -143,7 +143,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="getRecordByProcessDate">
+  <select id="getRecordByProcessDate" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     FROM dfcf_record

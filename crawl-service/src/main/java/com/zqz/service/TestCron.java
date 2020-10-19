@@ -7,13 +7,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * @Author: zqz
- * @Description:
+ * @Description: 测试功能入口
  * @Date: Created in 15:08 2020/10/19
  */
 @Component
@@ -21,20 +21,22 @@ import java.util.concurrent.TimeUnit;
 public class TestCron implements InitializingBean, DisposableBean {
     @Autowired
     private DfcfDataParseService dfcfDataParseService;
-    private ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        executor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                dfcfDataParseService.crawlData(StockTypeEnum.SH_SZ_A.getType());
-            }
-        }, 1, 10, TimeUnit.SECONDS);
+        List<StockTypeEnum> stockTypeList = initStock();
+        stockTypeList.forEach(e -> {
+            dfcfDataParseService.crawlData(e.getType());
+        });
     }
 
     @Override
     public void destroy() throws Exception {
-        executor.shutdown();
+        log.info("=============TestCron Destroy=============");
+    }
+
+    private List<StockTypeEnum> initStock() {
+        StockTypeEnum[] stockTypes = StockTypeEnum.values();
+        return Arrays.asList(stockTypes);
     }
 }

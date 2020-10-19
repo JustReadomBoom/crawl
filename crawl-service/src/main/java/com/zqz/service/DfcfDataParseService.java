@@ -6,6 +6,7 @@ import com.zqz.common.constants.FieldConstant;
 import com.zqz.common.enums.StockTimeEnum;
 import com.zqz.common.enums.StockTypeEnum;
 import com.zqz.common.utils.CommonUtil;
+import com.zqz.common.utils.DateUtil;
 import com.zqz.common.utils.HttpClientUtils;
 import com.zqz.common.utils.HttpUtils;
 import com.zqz.dao.entity.DfcfRecord;
@@ -34,7 +35,7 @@ public class DfcfDataParseService {
     public void crawlData(String type) {
         log.info("----> 开始数据抓取类型:[{}]", type);
         List<DfcfRecord> records = dfcfRecordService.getRecordByProcessDate(new Date());
-        if(!records.isEmpty()){
+        if (!records.isEmpty()) {
             log.info("-----> 今日已处理");
             return;
         }
@@ -50,28 +51,25 @@ public class DfcfDataParseService {
             String jsName = FieldConstant.JS_NAME.replace(FieldConstant.JS_DATA, CommonUtil.randomJSCode());
             HttpGet httpGet = createDFCFHttpGet(jsName, dayKey, stockType, 1, FieldConstant.DATA_TYPE_KEY, FieldConstant.DAY_KEY);
             String result = clientUtils.executeWithResult(httpGet, "utf-8");
-            log.info("抓取东方财富的个股资金流的数据,请求抓取后,股市[{}]，排行榜[{}],[{}]页, 返回的结果为[{}]", stockType, dayKey, 1, result);
+            log.info("------> 抓取东方财富-股市[{}]-排行榜[{}]的个股资金流的数据, 返回的结果为[{}]", stockType, FieldConstant.DAY_KEY, result);
             String[] s1 = result.split("data:");
-            String dataArr = s1[1].substring(0, s1[1].length() - 1);
-            log.info("抓取东方财富的个股资金流的数据，解析返回数据,股市[{}]，排行榜[{}],[{}]页,解析返回的数据股票数值为[{}]", stockType, dayKey, 1, dataArr);
             String data1 = s1[0];
             int a1 = data1.indexOf("pages:");
             int a2 = data1.indexOf(",date");
             String page = data1.substring(a1 + 6, a2);
-            log.info("抓取东方财富的个股资金流的数据，解析返回数据,股市[{}]，排行榜[{}],[{}]页, 解析返回的数据page值为[{}]", stockType, dayKey, 1, page);
+            log.info("------> 获取总页数:[{}]", page);
             int pageInt = Integer.valueOf(page);
             if (pageInt > 1) {
                 int allPage = pageInt + 1;
-                for (int i = 1; i < allPage; ++i) {
+                for (int i = 1; i <= allPage; ++i) {
                     HttpGet httpGet2 = createDFCFHttpGet(jsName, dayKey, stockType, i, stockType, dayKey);
                     try {
-                        // 休眠个3秒
-                        Thread.sleep(3 * 1000L);
+                        Thread.sleep(2 * 1000L);
                         String result2 = clientUtils.executeWithResult(httpGet2, "utf-8");
-                        log.info("抓取东方财富的个股资金流的数据,请求抓取后,股市[{}]，排行榜[{}],[{}]页, 返回的结果为[{}]", stockType, dayKey, i, result2);
+                        log.info("-----> 第[{}]页, 返回的结果[{}]", i, result2);
                         String[] dateS2 = result2.split("data:");
                         String dataArr2 = dateS2[1].substring(0, dateS2[1].length() - 1);
-                        log.info("抓取东方财富的个股资金流的数据，解析返回数据,股市[{}]，排行榜[{}],[{}]页,解析返回的数据股票数值为[{}]", stockType, dayKey, 1, dataArr2);
+                        log.info("-----> 第[{}]页,解析返回数据股票数值为[{}]", i, dataArr2);
                         JSONArray jsonArray = JSONArray.parseArray(dataArr2);
                         int size = jsonArray.size();
                         for (int k = 0; k < size; k++) {
@@ -79,9 +77,9 @@ public class DfcfDataParseService {
                             insertDfcfData(jsonArray, k, stockType, dayKey, formatDay, i);
                         }
                     } catch (Exception e) {
-                        log.error("抓取东方财富的个股资金流的数据，解析返回数据,股市[{}]，排行榜[{}],[{}]页, 解析返回的数据page值为[{}],出现异常:", stockType, dayKey, 1, page, e);
+                        log.error("***** 股市[{}]-排行榜[{}]-第[{}]页解析数据出现异常:{}", stockType, FieldConstant.DAY_KEY, i, e.getMessage(), e);
+                        throw new RuntimeException("*****解析数据异常");
                     }
-
                 }
             }
         } catch (Exception e) {
@@ -107,7 +105,6 @@ public class DfcfDataParseService {
         params.put("cmd", cmdValue);
         params.put("sty", "DCFFITA");
         params.put("rt", time);
-        log.info("抓取东方财富的个股资金流的数据，请求抓取之前,股市[{}]，排行榜[{}],[{}]页", key, timeKey, i);
         HttpGet httpGet = HttpUtils.get(FieldConstant.DFCF_FUND_FLOW_URL, params);
 
         httpGet.addHeader("Accept", "*/*");
@@ -120,71 +117,66 @@ public class DfcfDataParseService {
         return httpGet;
     }
 
-    private void insertDfcfData(JSONArray jsonArray, int k, String key, String timeKey, String formatDay, int stockPage) {
-        try {
-            String infoStr = (String) jsonArray.get(k);
-            log.info("解析东方财富的个股资金流的数据,第[{}]个，当前数据为[{}]", k, infoStr);
-            String[] infoStrings = infoStr.split(",");
-            // 清洗数据将 "-" 转化为 "0"
-            cleanInfoStringArr(infoStrings);
-            String stockCode = infoStrings[1];
-            String stockName = infoStrings[2];
-            String stockTime = infoStrings[15];
-            BigDecimal priceNew = new BigDecimal(infoStrings[3]).setScale(2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal change = new BigDecimal(infoStrings[4]).setScale(2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal mainNetInflowAmount = new BigDecimal(infoStrings[5]).setScale(4, BigDecimal.ROUND_HALF_UP);
-            BigDecimal mainNetProportion = new BigDecimal(infoStrings[6]).setScale(2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal superBigPartNetInFlowAmount = new BigDecimal(infoStrings[7]).setScale(4, BigDecimal.ROUND_HALF_UP);
-            BigDecimal superBigPartNetProportion = new BigDecimal(infoStrings[8]).setScale(2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal bigPartNetInFlowAmount = new BigDecimal(infoStrings[9]).setScale(4, BigDecimal.ROUND_HALF_UP);
-            BigDecimal bigPartNetProportion = new BigDecimal(infoStrings[10]).setScale(2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal middlePartNetInFlowAmount = new BigDecimal(infoStrings[11]).setScale(4, BigDecimal.ROUND_HALF_UP);
-            BigDecimal middlePartNetProportion = new BigDecimal(infoStrings[12]).setScale(2, BigDecimal.ROUND_HALF_UP);
-            BigDecimal litterPartNetInFlowAmount = new BigDecimal(infoStrings[13]).setScale(4, BigDecimal.ROUND_HALF_UP);
-            BigDecimal litterPartNetProportion = new BigDecimal(infoStrings[14]).setScale(2, BigDecimal.ROUND_HALF_UP);
-            Date time = new SimpleDateFormat(FieldConstant.TIME_FORMAT2).parse(infoStrings[15]);
-            String timeVersion = key + "#" + timeKey + "#" + stockTime;
-            String crawlerVersion = key + "#" + timeKey + "#" + formatDay;
-            BigDecimal someInfo = new BigDecimal(0);
-            if (infoStrings[16] != null) {
-                someInfo = new BigDecimal(infoStrings[16]).setScale(4, BigDecimal.ROUND_HALF_UP);
-            }
-
-            DfcfRecord record = new DfcfRecord();
-            record.setStockMarket(key);
-            record.setStockRank(timeKey);
-            record.setStockCode(stockCode);
-            record.setStockName(stockName);
-            record.setPriceNew(priceNew);
-            record.setStockChange(change);
-            record.setProcessDate(new Date());
-            record.setMainNetInflowAmount(mainNetInflowAmount);
-            record.setMainNetProportion(mainNetProportion);
-            record.setSuperBigPartNetInflowAmount(superBigPartNetInFlowAmount);
-            record.setSuperBigPartNetProportion(superBigPartNetProportion);
-            record.setBigPartNetInflowAmount(bigPartNetInFlowAmount);
-            record.setBigPartNetProportion(bigPartNetProportion);
-            record.setMiddlePartNetInflowAmount(middlePartNetInFlowAmount);
-            record.setMiddlePartNetProportion(middlePartNetProportion);
-            record.setLitterPartNetInflowAmount(litterPartNetInFlowAmount);
-            record.setLitterPartNetProportion(litterPartNetProportion);
-            record.setCountTime(time);
-            record.setStockPage(stockPage);
-            record.setSomeinfo(someInfo.toString());
-            record.setTimeVersion(timeVersion);
-            record.setCrawlerVersion(crawlerVersion);
-            List<DfcfRecord> stockDfcfFundFlowInfoList = dfcfRecordService.selectByTimeVersion(stockCode, timeVersion);
-            if (CollectionUtils.isEmpty(stockDfcfFundFlowInfoList)) {
-                int a = dfcfRecordService.insert(record);
-                log.info("插入东方财富的数据成功[{}]，数据为[{}]", a, JSON.toJSONString(record));
-            } else {
-                record.setId(stockDfcfFundFlowInfoList.get(0).getId());
-                int a = dfcfRecordService.updateByPrimaryKeySelective(record);
-                log.info("更新东方财富的数据成功[{}]，数据为[{}]", a, JSON.toJSONString(record));
-            }
-        } catch (Exception e) {
-            log.error("插入或更新东方财富的数据，出现异常{}", e);
+    private void insertDfcfData(JSONArray jsonArray, int k, String stockType, String dayKey, String formatDay, int stockPage) throws Exception {
+        String infoStr = (String) jsonArray.get(k);
+        log.info("-----> 需处理的数据,第[{}]个，数据为[{}]", k, infoStr);
+        String[] infoStrings = infoStr.split(",");
+        // 清洗数据将 "-" 转化为 "0"
+        cleanInfoStringArr(infoStrings);
+        String stockCode = infoStrings[1];
+        String stockName = infoStrings[2];
+        String stockTime = infoStrings[15];
+        BigDecimal priceNew = new BigDecimal(infoStrings[3]).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal change = new BigDecimal(infoStrings[4]).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal mainNetInflowAmount = new BigDecimal(infoStrings[5]).setScale(4, BigDecimal.ROUND_HALF_UP);
+        BigDecimal mainNetProportion = new BigDecimal(infoStrings[6]).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal superBigPartNetInFlowAmount = new BigDecimal(infoStrings[7]).setScale(4, BigDecimal.ROUND_HALF_UP);
+        BigDecimal superBigPartNetProportion = new BigDecimal(infoStrings[8]).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal bigPartNetInFlowAmount = new BigDecimal(infoStrings[9]).setScale(4, BigDecimal.ROUND_HALF_UP);
+        BigDecimal bigPartNetProportion = new BigDecimal(infoStrings[10]).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal middlePartNetInFlowAmount = new BigDecimal(infoStrings[11]).setScale(4, BigDecimal.ROUND_HALF_UP);
+        BigDecimal middlePartNetProportion = new BigDecimal(infoStrings[12]).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal litterPartNetInFlowAmount = new BigDecimal(infoStrings[13]).setScale(4, BigDecimal.ROUND_HALF_UP);
+        BigDecimal litterPartNetProportion = new BigDecimal(infoStrings[14]).setScale(2, BigDecimal.ROUND_HALF_UP);
+        Date time = DateUtil.format1.get().parse(infoStrings[15]);
+        String timeVersion = stockType + "#" + dayKey + "#" + stockTime;
+        String crawlerVersion = stockType + "#" + dayKey + "#" + formatDay;
+        BigDecimal someInfo = new BigDecimal(0);
+        if (infoStrings[16] != null) {
+            someInfo = new BigDecimal(infoStrings[16]).setScale(4, BigDecimal.ROUND_HALF_UP);
         }
+        Date now = new Date();
+        DfcfRecord record = new DfcfRecord();
+        record.setStockMarket(null == StockTypeEnum.getTypeByDesc(stockType) ? stockType : StockTypeEnum.getTypeByDesc(stockType));
+        record.setStockRank(null == StockTimeEnum.getTypeByDesc(dayKey) ? dayKey : StockTimeEnum.getTypeByDesc(dayKey));
+        record.setStockCode(stockCode);
+        record.setStockName(stockName);
+        record.setPriceNew(priceNew);
+        record.setStockChange(change);
+        record.setProcessDate(now);
+        record.setMainNetInflowAmount(mainNetInflowAmount);
+        record.setMainNetProportion(mainNetProportion);
+        record.setSuperBigPartNetInflowAmount(superBigPartNetInFlowAmount);
+        record.setSuperBigPartNetProportion(superBigPartNetProportion);
+        record.setBigPartNetInflowAmount(bigPartNetInFlowAmount);
+        record.setBigPartNetProportion(bigPartNetProportion);
+        record.setMiddlePartNetInflowAmount(middlePartNetInFlowAmount);
+        record.setMiddlePartNetProportion(middlePartNetProportion);
+        record.setLitterPartNetInflowAmount(litterPartNetInFlowAmount);
+        record.setLitterPartNetProportion(litterPartNetProportion);
+        record.setCountTime(time);
+        record.setStockPage(stockPage);
+        record.setSomeinfo(someInfo.toString());
+        record.setTimeVersion(timeVersion);
+        record.setCrawlerVersion(crawlerVersion);
+        List<DfcfRecord> stockDfcfFundFlowInfoList = dfcfRecordService.selectByTimeVersion(stockCode, timeVersion);
+        if (CollectionUtils.isEmpty(stockDfcfFundFlowInfoList)) {
+            int a = dfcfRecordService.insert(record);
+            log.info("-----> 插入数据[{}]", 1 == a ? "SUCCESS" : "FAIL");
+        } else {
+            log.info("-----> 该日期:[{}]-股市类型:[{}]-股票代码:[{}]已处理", DateUtil.getDateFormat3Str(now), record.getStockMarket(), stockCode);
+        }
+
     }
 
     private void cleanInfoStringArr(String[] infoStrings) {

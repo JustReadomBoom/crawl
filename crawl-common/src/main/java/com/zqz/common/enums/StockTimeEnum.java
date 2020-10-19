@@ -29,4 +29,17 @@ public enum StockTimeEnum {
         return null;
     }
 
+    public static String getTypeByDesc(String desc) {
+        if(desc == null) {
+            return null;
+        }
+        for (StockTimeEnum enumInstance : values()) {
+            if (enumInstance.desc.equals(desc)) {
+                return enumInstance.type;
+            }
+        }
+        return null;
+    }
+
+
 }
