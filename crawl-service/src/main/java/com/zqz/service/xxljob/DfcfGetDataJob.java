@@ -1,8 +1,7 @@
 package com.zqz.service.xxljob;
 
 import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.handler.IJobHandler;
-import com.xxl.job.core.handler.annotation.JobHandler;
+import com.xxl.job.core.handler.annotation.XxlJob;
 import com.zqz.common.enums.StockTypeEnum;
 import com.zqz.service.DfcfDataParseService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +17,12 @@ import java.util.List;
  * @Date: Created in 10:15 2020/10/20
  */
 @Slf4j
-@JobHandler(value = "dfcfGetDataJob")
 @Component
-public class DfcfGetDataJob extends IJobHandler {
+public class DfcfGetDataJob{
     @Autowired
     private DfcfDataParseService dfcfDataParseService;
 
-    @Override
+    @XxlJob("dfcfGetDataJob")
     public ReturnT<String> execute(String s) throws Exception {
         log.info("===============DfcfGetDataJob Start================");
         try {
@@ -32,10 +30,10 @@ public class DfcfGetDataJob extends IJobHandler {
             stockTypeList.forEach(e -> {
                 dfcfDataParseService.crawlData(e.getType());
             });
-            return SUCCESS;
+            return ReturnT.SUCCESS;
         }catch (Exception e){
             log.error("***** DfcfGetDataJob执行异常:[{}]", e.getMessage(), e);
-            return FAIL;
+            return ReturnT.FAIL;
         }
     }
 
