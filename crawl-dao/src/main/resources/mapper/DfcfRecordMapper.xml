@@ -150,4 +150,10 @@
     where process_date = #{date}
   </select>
 
+  <select id="getRecords" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    FROM dfcf_record
+  </select>
+
 </mapper>

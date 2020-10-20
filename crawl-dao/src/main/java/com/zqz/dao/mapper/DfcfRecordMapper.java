@@ -16,4 +16,6 @@ public interface DfcfRecordMapper {
     int updateByPrimaryKeySelective(DfcfRecord record);
 
     List<DfcfRecord> getRecordByProcessDate(@Param("date") Date date);
+
+    List<DfcfRecord> getRecords();
 }
