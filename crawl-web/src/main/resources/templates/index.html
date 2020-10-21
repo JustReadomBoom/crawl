@@ -2,10 +2,22 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>table模块快速使用</title>
+    <title>股票数据统计</title>
     <link rel="stylesheet" href="/js/layui/css/layui.css" media="all">
 </head>
 <body>
+
+<div class="queryDataModel">
+    搜索股票代码：
+    <div class="layui-inline">
+        <input class="layui-input" name="stockCode" id="stockCodeDataReload" autocomplete="off">
+    </div>
+    日期选择：
+    <div class="layui-inline">
+        <input type="text" class="layui-input" id="dateQueryReload">
+    </div>
+    <button class="layui-btn" data-type="reload">搜索</button>
+</div>
 
 <table class="layui-hide" id="dfcf" lay-filter="test"></table>
 
@@ -21,29 +33,36 @@
 
 
 <script src="/js/layui/layui.js"></script>
+
 <script th:inline="none">
-    layui.use(['table', 'laypage'], function () {
+    layui.use(['table', 'laypage', 'laydate'], function () {
         var table = layui.table
             , laypage = layui.laypage
+            , laydate = layui.laydate
 
         table.render({
             elem: '#dfcf'
             , height: 920
-            , url: '/data/get/dfcf/' //数据接口
+            , id: 'dataView'
+            , url: '/data/get/dfcf' //数据接口
+            , where: {
+                stockCode: '',
+                processDate: dateToStr(new Date())
+              }
             , page: true //开启分页
             , limit: 20
-            , limits:[20, 30, 40, 50, 60, 70, 80, 90, 100]
+            , limits: [20, 30, 40, 50, 60, 70, 80, 90, 100]
             , totalRow: true //开启合计行
             , cols: [
                 [ //表头
-                    {field: 'id', title: 'ID', width: 100, fixed: 'left', totalRowText: '合计：'}
+                    {type: 'numbers', title: 'ID', width: 100, fixed: 'left', totalRowText: '合计：'}
                     , {field: 'processDate', title: '处理日期', width: 120}
                     , {field: 'stockRank', title: '排行榜名', width: 120}
                     , {field: 'stockMarket', title: '股市名', width: 120}
                     , {field: 'stockCode', title: '股票代码', width: 120}
                     , {field: 'stockName', title: '股票名字', width: 120}
                     , {field: 'priceNew', title: '股票最新价格', width: 140, sort: true, totalRow: true}
-                    , {field: 'stockChange', title: '涨跌幅', width: 140, sort: true, totalRow: true}
+                    , {field: 'stockChange', title: '涨跌幅', width: 140, sort: true, totalRow: true, templet: '#stockChangeTpl'}
                     , {field: 'mainNetInflowAmount', title: '主力净额', width: 140, sort: true, totalRow: true}
                     , {field: 'mainNetProportion', title: '主力净流入', width: 140, sort: true, totalRow: true}
                     , {field: 'superBigPartNetInflowAmount', title: '超大单净额', width: 140, sort: true, totalRow: true}
@@ -72,7 +91,59 @@
             }
         });
 
+        laydate.render({
+            elem: '#dateQueryReload',
+            format: 'yyyy-MM-dd',
+            value: dateToStr(new Date()),
+            isInitValue: true
+        });
+
+        function dateToStr(date) {
+            var time = date;
+            var y = time.getFullYear();
+            var M = time.getMonth() + 1;
+            M = M < 10 ? ("0" + M) : M;
+            var d = time.getDate();
+            d = d < 10 ? ("0" + d) : d;
+            var r = y + "-" + M + "-" + d;
+            console.log("=========日期:" + r);
+            return r;
+        }
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function () {
+                var stockCodeDataReload = $('#stockCodeDataReload');
+                var processDateDataReload = $('#dateQueryReload');
+
+                //执行重载
+                table.reload('dataView', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        stockCode: stockCodeDataReload.val(),
+                        processDate: processDateDataReload.val()
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.queryDataModel .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
     });
 </script>
+
+<script type="text/html" id="stockChangeTpl">
+    {{#  if(d.stockChange > 0){ }}
+    <span style="color: red">{{ d.stockChange }} &#8593;  </span>
+    {{#  } else { }}
+    <span style="color: limegreen">{{ d.stockChange }} &#8595; </span>
+    {{#  } }}
+</script>
+
 </body>
 </html>

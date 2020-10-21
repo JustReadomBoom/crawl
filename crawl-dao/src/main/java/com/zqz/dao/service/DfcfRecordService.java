@@ -1,6 +1,5 @@
 package com.zqz.dao.service;
 
-import com.github.pagehelper.PageHelper;
 import com.zqz.dao.entity.DfcfRecord;
 import com.zqz.dao.mapper.DfcfRecordMapper;
 import org.springframework.stereotype.Service;
@@ -35,7 +34,7 @@ public class DfcfRecordService {
         return mapper.getRecordByProcessDate(date);
     }
 
-    public List<DfcfRecord> getRecords(){
-        return mapper.getRecords();
+    public List<DfcfRecord> getRecordsByParam(String stockCode, String processDate){
+        return mapper.getRecordsByParam(stockCode, processDate);
     }
 }

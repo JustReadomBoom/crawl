@@ -25,15 +25,15 @@ public class GetDfcfDataService {
     @Autowired
     private DfcfRecordService dfcfRecordService;
 
-    public WebResp<GetDfcfDataResp> doGetDfcfData(Integer page, Integer limit){
+    public WebResp<GetDfcfDataResp> doGetDfcfData(Integer page, Integer limit, String stockCode, String processDate) {
         WebResp<GetDfcfDataResp> resp = new WebResp<>();
         List<GetDfcfDataResp> list = new ArrayList<>();
         resp.setCode(0);
         resp.setMsg("SUCCESS");
 
         Page<Object> startPage = PageHelper.startPage(page, limit);
-        List<DfcfRecord> records = dfcfRecordService.getRecords();
-        if(records.isEmpty()){
+        List<DfcfRecord> records = dfcfRecordService.getRecordsByParam(stockCode, processDate);
+        if (records.isEmpty()) {
             resp.setCode(1);
             resp.setMsg("无数据");
             return resp;
@@ -41,9 +41,8 @@ public class GetDfcfDataService {
         int total = (int) startPage.getTotal();
         resp.setCount(total);
 
-        records.forEach(e ->{
+        records.forEach(e -> {
             GetDfcfDataResp dr = new GetDfcfDataResp();
-            dr.setId(e.getId());
             dr.setProcessDate(e.getProcessDate());
             dr.setStockRank(e.getStockRank());
             dr.setStockMarket(e.getStockMarket());

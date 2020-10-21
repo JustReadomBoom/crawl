@@ -16,8 +16,6 @@ import java.util.Date;
 public class GetDfcfDataResp implements Serializable {
     private static final long serialVersionUID = -7933667243538440113L;
 
-    private Long id;
-
     @JsonFormat(pattern = "yyyy-MM-dd", timezone="GMT+8")
     private Date processDate;
 

@@ -17,5 +17,6 @@ public interface DfcfRecordMapper {
 
     List<DfcfRecord> getRecordByProcessDate(@Param("date") Date date);
 
-    List<DfcfRecord> getRecords();
+    List<DfcfRecord> getRecordsByParam(@Param("stockCode") String stockCode, @Param("processDate") String processDate);
+
 }

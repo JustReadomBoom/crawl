@@ -150,10 +150,17 @@
     where process_date = #{date}
   </select>
 
-  <select id="getRecords" resultMap="BaseResultMap">
+  <select id="getRecordsByParam" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     FROM dfcf_record
+    where 1 = 1
+    <if test="stockCode != null and stockCode != ''">
+      and stock_code = #{stockCode}
+    </if>
+    <if test="processDate != null and processDate != ''">
+      and process_date = #{processDate}
+    </if>
   </select>
 
 </mapper>
