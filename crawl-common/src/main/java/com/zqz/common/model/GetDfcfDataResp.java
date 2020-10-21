@@ -1,19 +1,29 @@
-package com.zqz.dao.entity;
+package com.zqz.common.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+
+/**
+ * @Author: zqz
+ * @Description:
+ * @Date: Created in 09:14 2020/10/21
+ */
 @Data
-public class DfcfRecord implements Serializable {
-    private static final long serialVersionUID = -6576069100908303933L;
+public class GetDfcfDataResp implements Serializable {
+    private static final long serialVersionUID = -7933667243538440113L;
 
     private Long id;
 
-    private String stockMarket;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone="GMT+8")
+    private Date processDate;
 
     private String stockRank;
+
+    private String stockMarket;
 
     private String stockCode;
 
@@ -22,8 +32,6 @@ public class DfcfRecord implements Serializable {
     private BigDecimal priceNew;
 
     private BigDecimal stockChange;
-
-    private Date processDate;
 
     private BigDecimal mainNetInflowAmount;
 
@@ -45,17 +53,7 @@ public class DfcfRecord implements Serializable {
 
     private BigDecimal litterPartNetProportion;
 
-    private Integer stockPage;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date createTime;
 
-    private Date countTime;
-
-    private String timeVersion;
-
-    private String crawlerVersion;
-
-    private Date cTime;
-
-    private Date uTime;
-
-    private String someinfo;
 }

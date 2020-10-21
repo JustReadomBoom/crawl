@@ -28,37 +28,33 @@
 
         table.render({
             elem: '#dfcf'
-            , height: 800
+            , height: 920
             , url: '/data/get/dfcf/' //数据接口
             , page: true //开启分页
+            , limit: 20
+            , limits:[20, 30, 40, 50, 60, 70, 80, 90, 100]
             , totalRow: true //开启合计行
             , cols: [
                 [ //表头
-                    {field: 'id', title: 'ID', width: 80, sort: false, fixed: 'left', totalRowText: '合计：'}
-                    , {field: 'stockMarket', title: '股市名', width: 120}
+                    {field: 'id', title: 'ID', width: 100, fixed: 'left', totalRowText: '合计：'}
+                    , {field: 'processDate', title: '处理日期', width: 120}
                     , {field: 'stockRank', title: '排行榜名', width: 120}
+                    , {field: 'stockMarket', title: '股市名', width: 120}
                     , {field: 'stockCode', title: '股票代码', width: 120}
                     , {field: 'stockName', title: '股票名字', width: 120}
-                    , {field: 'priceNew', title: '股票最新价格', width: 120, totalRow: true}
-                    , {field: 'stockChange', title: '涨跌幅', width: 120, sort: true}
-                    , {field: 'processDate', title: '处理日期', width: 120}
-                    , {field: 'mainNetInflowAmount', title: '主力净额', width: 120, totalRow: true}
-                    , {field: 'mainNetProportion', title: '主力净流入', width: 120, totalRow: true}
-                    , {field: 'superBigPartNetInflowAmount', title: '超大单净额', width: 120, totalRow: true}
-                    , {field: 'superBigPartNetProportion', title: '超大单净流入', width: 120, totalRow: true}
-                    , {field: 'bigPartNetInflowAmount', title: '大单净额', width: 120, totalRow: true}
-                    , {field: 'bigPartNetProportion', title: '大单净流入', width: 120, totalRow: true}
-                    , {field: 'middlePartNetInflowAmount', title: '中单净额', width: 120, totalRow: true}
-                    , {field: 'middlePartNetProportion', title: '中单净流入', width: 120, totalRow: true}
-                    , {field: 'litterPartNetInflowAmount', title: '小单净额', width: 120, totalRow: true}
-                    , {field: 'litterPartNetProportion', title: '小单净流入', width: 120, totalRow: true}
-                    , {field: 'stockPage', title: '第几页', width: 80}
-                    , {field: 'countTime', title: '统计数据时间', width: 80}
-                    , {field: 'someinfo', title: '扩展数据', width: 80}
-                    , {field: 'timeVersion', title: '批次号', width: 80}
-                    , {field: 'crawlerVersion', title: '抓取版本', width: 80}
-                    , {field: 'cTime', title: '创建时间', width: 80}
-                    , {field: 'uTime', title: '更新时间', width: 80}
+                    , {field: 'priceNew', title: '股票最新价格', width: 140, sort: true, totalRow: true}
+                    , {field: 'stockChange', title: '涨跌幅', width: 140, sort: true, totalRow: true}
+                    , {field: 'mainNetInflowAmount', title: '主力净额', width: 140, sort: true, totalRow: true}
+                    , {field: 'mainNetProportion', title: '主力净流入', width: 140, sort: true, totalRow: true}
+                    , {field: 'superBigPartNetInflowAmount', title: '超大单净额', width: 140, sort: true, totalRow: true}
+                    , {field: 'superBigPartNetProportion', title: '超大单净流入', width: 140, sort: true, totalRow: true}
+                    , {field: 'bigPartNetInflowAmount', title: '大单净额', width: 140, sort: true, totalRow: true}
+                    , {field: 'bigPartNetProportion', title: '大单净流入', width: 140, sort: true, totalRow: true}
+                    , {field: 'middlePartNetInflowAmount', title: '中单净额', width: 140, sort: true, totalRow: true}
+                    , {field: 'middlePartNetProportion', title: '中单净流入', width: 140, sort: true, totalRow: true}
+                    , {field: 'litterPartNetInflowAmount', title: '小单净额', width: 140, sort: true, totalRow: true}
+                    , {field: 'litterPartNetProportion', title: '小单净流入', width: 140, sort: true, totalRow: true}
+                    , {field: 'createTime', title: '统计数据时间', width: 200}
                 ]
             ]
         });

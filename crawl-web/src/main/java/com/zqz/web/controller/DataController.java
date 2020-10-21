@@ -1,5 +1,6 @@
 package com.zqz.web.controller;
 
+import com.zqz.common.model.GetDfcfDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.dao.entity.DfcfRecord;
 import com.zqz.service.dfcf.GetDfcfDataService;
@@ -26,12 +27,12 @@ public class DataController {
 
     @GetMapping("/get/dfcf")
     @ResponseBody
-    public WebResp<DfcfRecord> getDfcfData(@RequestParam("page") Integer page, @RequestParam("limit") Integer limit){
+    public WebResp<GetDfcfDataResp> getDfcfData(@RequestParam("page") Integer page, @RequestParam("limit") Integer limit){
         try{
             return getDfcfDataService.doGetDfcfData(page, limit);
         }catch (Exception e){
             log.error("*****getDfcfData异常:[{}]", e.getMessage(), e);
-            WebResp<DfcfRecord> resp = new WebResp<>();
+            WebResp<GetDfcfDataResp> resp = new WebResp<>();
             resp.setCode(9999);
             resp.setMsg("FAIL");
             return resp;
