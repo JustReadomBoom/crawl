@@ -7,6 +7,7 @@ import com.zqz.common.model.WebResp;
 import com.zqz.dao.entity.DfcfRecord;
 import com.zqz.dao.service.DfcfRecordService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,14 +26,20 @@ public class GetDfcfDataService {
     @Autowired
     private DfcfRecordService dfcfRecordService;
 
-    public WebResp<GetDfcfDataResp> doGetDfcfData(Integer page, Integer limit, String stockCode, String processDate) {
+    public WebResp<GetDfcfDataResp> doGetDfcfData(Integer page, Integer limit, String stockCode, String processDate, String stockName) {
         WebResp<GetDfcfDataResp> resp = new WebResp<>();
         List<GetDfcfDataResp> list = new ArrayList<>();
         resp.setCode(0);
         resp.setMsg("SUCCESS");
 
+        if(StringUtils.isBlank(processDate)){
+            resp.setCode(1);
+            resp.setMsg("请选择日期");
+            return resp;
+        }
+
         Page<Object> startPage = PageHelper.startPage(page, limit);
-        List<DfcfRecord> records = dfcfRecordService.getRecordsByParam(stockCode, processDate);
+        List<DfcfRecord> records = dfcfRecordService.getRecordsByParam(stockCode, processDate, stockName);
         if (records.isEmpty()) {
             resp.setCode(1);
             resp.setMsg("无数据");

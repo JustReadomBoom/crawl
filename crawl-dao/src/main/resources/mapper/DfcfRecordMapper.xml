@@ -161,6 +161,9 @@
     <if test="processDate != null and processDate != ''">
       and process_date = #{processDate}
     </if>
+    <if test="stockName != null and stockName != ''">
+      and stock_name = #{stockName}
+    </if>
   </select>
 
 </mapper>

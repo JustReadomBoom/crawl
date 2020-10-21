@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Date;
-
 /**
  * @Author: zqz
  * @Description:
@@ -31,9 +29,10 @@ public class DataController {
     public WebResp<GetDfcfDataResp> getDfcfData(@RequestParam("page") Integer page,
                                                 @RequestParam("limit") Integer limit,
                                                 @RequestParam("stockCode") String stockCode,
-                                                @RequestParam("processDate")String processDate){
+                                                @RequestParam("processDate")String processDate,
+                                                @RequestParam("stockName") String stockName){
         try{
-            return getDfcfDataService.doGetDfcfData(page, limit, stockCode, processDate);
+            return getDfcfDataService.doGetDfcfData(page, limit, stockCode, processDate, stockName);
         }catch (Exception e){
             log.error("*****getDfcfData异常:[{}]", e.getMessage(), e);
             WebResp<GetDfcfDataResp> resp = new WebResp<>();

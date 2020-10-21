@@ -11,12 +11,15 @@ public interface DfcfRecordMapper {
 
     int insert(DfcfRecord record);
 
-    List<DfcfRecord> selectByTimeVersion(@Param("stockCode") String stockCode, @Param("timeVersion") String timeVersion);
+    List<DfcfRecord> selectByTimeVersion(@Param("stockCode") String stockCode,
+                                         @Param("timeVersion") String timeVersion);
 
     int updateByPrimaryKeySelective(DfcfRecord record);
 
     List<DfcfRecord> getRecordByProcessDate(@Param("date") Date date);
 
-    List<DfcfRecord> getRecordsByParam(@Param("stockCode") String stockCode, @Param("processDate") String processDate);
+    List<DfcfRecord> getRecordsByParam(@Param("stockCode") String stockCode,
+                                       @Param("processDate") String processDate,
+                                       @Param("stockName") String stockName);
 
 }

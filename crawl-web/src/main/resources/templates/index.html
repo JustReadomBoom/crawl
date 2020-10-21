@@ -13,15 +13,24 @@
   </div>
 </div>
 
+<div>&nbsp;</div>
+
 <div class="queryDataModel">
-    股票代码：
+    &nbsp;&nbsp;股票代码：
     <div class="layui-inline">
         <input class="layui-input" name="stockCode" id="stockCodeDataReload" autocomplete="off">
     </div>
-    日期选择：
+    &nbsp;
+    &nbsp;股票名字：
+    <div class="layui-inline">
+        <input class="layui-input" name="stockName" id="stockNameDataReload" autocomplete="off">
+    </div>
+    &nbsp;
+    &nbsp;日期选择：
     <div class="layui-inline">
         <input type="text" class="layui-input" id="dateQueryReload">
     </div>
+    &nbsp;
     <button class="layui-btn" data-type="reload">搜索</button>
 </div>
 
@@ -53,6 +62,7 @@
             , url: '/data/get/dfcf' //数据接口
             , where: {
                 stockCode: '',
+                stockName: '',
                 processDate: dateToStr(new Date())
               }
             , page: true //开启分页
@@ -64,7 +74,7 @@
                     {type: 'numbers', title: 'ID', width: 100, fixed: 'left', totalRowText: '合计：'}
                     , {field: 'processDate', title: '处理日期', width: 120}
                     , {field: 'stockRank', title: '排行榜名', width: 120}
-                    , {field: 'stockMarket', title: '股市名', width: 120}
+                    , {field: 'stockMarket', title: '股市类型', width: 120}
                     , {field: 'stockCode', title: '股票代码', width: 120}
                     , {field: 'stockName', title: '股票名字', width: 120}
                     , {field: 'priceNew', title: '股票最新价格', width: 140, sort: true, totalRow: true}
@@ -97,6 +107,7 @@
             }
         });
 
+        //时间选择器
         laydate.render({
             elem: '#dateQueryReload',
             format: 'yyyy-MM-dd',
@@ -104,6 +115,7 @@
             isInitValue: true
         });
 
+        //指定日期格式
         function dateToStr(date) {
             var time = date;
             var y = time.getFullYear();
@@ -121,6 +133,7 @@
             reload: function () {
                 var stockCodeDataReload = $('#stockCodeDataReload');
                 var processDateDataReload = $('#dateQueryReload');
+                var stockNameDataReload = $('#stockNameDataReload');
 
                 //执行重载
                 table.reload('dataView', {
@@ -129,7 +142,8 @@
                     }
                     , where: {
                         stockCode: stockCodeDataReload.val(),
-                        processDate: processDateDataReload.val()
+                        processDate: processDateDataReload.val(),
+                        stockName: stockNameDataReload.val()
                     }
                 }, 'data');
             }
@@ -142,6 +156,7 @@
     });
 </script>
 
+<!--涨跌幅红绿标记-->
 <script type="text/html" id="stockChangeTpl">
     {{#  if(d.stockChange > 0){ }}
     <span style="color: red">{{ d.stockChange }} &#8593;  </span>
