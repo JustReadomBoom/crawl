@@ -28,11 +28,6 @@ public class DemoTest {
         return "Hello, this is crawl demo!!!";
     }
 
-    @GetMapping("/index")
-    public String index() {
-        return "index";
-    }
-
     @GetMapping("/get/user")
     @ResponseBody
     public WebResp<User> getData(@RequestParam("page") Integer page, @RequestParam("limit") Integer limit){
