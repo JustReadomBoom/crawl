@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS `crawl`.`dfcf_record`;
-CREATE TABLE `crawl`.`dfcf_record` (
+CREATE TABLE `dfcf_record` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `stock_market` varchar(32) DEFAULT NULL COMMENT '股市名',
   `stock_rank` varchar(32) DEFAULT NULL COMMENT '排行榜名',
@@ -27,5 +27,7 @@ CREATE TABLE `crawl`.`dfcf_record` (
   `u_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `IDX_PRO_DATE` (`process_date`) USING BTREE,
-  KEY `IDX_STOCK_CODE_TIME_VER` (`stock_code`,`time_version`) USING BTREE
+  KEY `IDX_STOCK_CODE_TIME_VER` (`stock_code`,`time_version`) USING BTREE,
+  KEY `IDX_STOCK_NAME` (`stock_name`) USING BTREE,
+  KEY `IDX_STOCK_MARKET` (`stock_market`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='东方财富-资金流向-个股资金流的数据';
