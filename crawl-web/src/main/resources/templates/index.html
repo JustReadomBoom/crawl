@@ -7,8 +7,14 @@
 </head>
 <body>
 
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header">
+    <div class="layui-logo">Hello</div>
+  </div>
+</div>
+
 <div class="queryDataModel">
-    搜索股票代码：
+    股票代码：
     <div class="layui-inline">
         <input class="layui-input" name="stockCode" id="stockCodeDataReload" autocomplete="off">
     </div>
@@ -133,7 +139,6 @@
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
         });
-
     });
 </script>
 
