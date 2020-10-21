@@ -9,7 +9,7 @@
 
 <div class="layui-layout layui-layout-admin">
   <div class="layui-header">
-    <div class="layui-logo">Stock Space （注: 每日15点更新当日数据）</div>
+    <div class="layui-logo" style="width:auto;color: #FFB800;font-size: 18px;">Stock Space （注: 每日15点更新当日数据）</div>
   </div>
 </div>
 
@@ -31,7 +31,7 @@
         <input type="text" class="layui-input" id="dateQueryReload">
     </div>
     &nbsp;
-    <button class="layui-btn" data-type="reload">搜索</button>
+    <button class="layui-btn" data-type="reload" style="background-color: #007DDB">搜索</button>
 </div>
 
 <table class="layui-hide" id="dfcf" lay-filter="test"></table>
@@ -72,7 +72,7 @@
             , cols: [
                 [ //表头
                     {type: 'numbers', title: 'ID', width: 100, fixed: 'left', totalRowText: '合计：'}
-                    , {field: 'processDate', title: '处理日期', width: 120}
+                    , {field: 'processDate', title: '日期', width: 120}
                     , {field: 'stockRank', title: '排行榜名', width: 120}
                     , {field: 'stockMarket', title: '股市类型', width: 120}
                     , {field: 'stockCode', title: '股票代码', width: 120}
@@ -98,7 +98,6 @@
         laypage.render({
             elem: 'pageDfcf' //分页容器的id
             , count: 100 //总页数
-            , skin: '#1E9FFF' //自定义选中色值
             , skip: true //开启跳页
             , jump: function (obj, first) {
                 if (!first) {
