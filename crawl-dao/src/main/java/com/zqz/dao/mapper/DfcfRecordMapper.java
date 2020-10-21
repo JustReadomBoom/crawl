@@ -20,6 +20,7 @@ public interface DfcfRecordMapper {
 
     List<DfcfRecord> getRecordsByParam(@Param("stockCode") String stockCode,
                                        @Param("processDate") String processDate,
-                                       @Param("stockName") String stockName);
+                                       @Param("stockName") String stockName,
+                                       @Param("stockMarket") String stockMarket);
 
 }

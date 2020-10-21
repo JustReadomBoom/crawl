@@ -30,9 +30,10 @@ public class DataController {
                                                 @RequestParam("limit") Integer limit,
                                                 @RequestParam("stockCode") String stockCode,
                                                 @RequestParam("processDate")String processDate,
-                                                @RequestParam("stockName") String stockName){
+                                                @RequestParam("stockName") String stockName,
+                                                @RequestParam("stockMarket") String stockMarket){
         try{
-            return getDfcfDataService.doGetDfcfData(page, limit, stockCode, processDate, stockName);
+            return getDfcfDataService.doGetDfcfData(page, limit, stockCode, processDate, stockName, stockMarket);
         }catch (Exception e){
             log.error("*****getDfcfData异常:[{}]", e.getMessage(), e);
             WebResp<GetDfcfDataResp> resp = new WebResp<>();

@@ -34,7 +34,7 @@ public class DfcfRecordService {
         return mapper.getRecordByProcessDate(date);
     }
 
-    public List<DfcfRecord> getRecordsByParam(String stockCode, String processDate, String stockName){
-        return mapper.getRecordsByParam(stockCode, processDate, stockName);
+    public List<DfcfRecord> getRecordsByParam(String stockCode, String processDate, String stockName, String stockMarket){
+        return mapper.getRecordsByParam(stockCode, processDate, stockName, stockMarket);
     }
 }

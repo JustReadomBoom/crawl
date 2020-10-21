@@ -164,6 +164,9 @@
     <if test="stockName != null and stockName != ''">
       and stock_name = #{stockName}
     </if>
+    <if test="stockMarket != null and stockMarket != ''">
+      and stock_market = #{stockMarket}
+    </if>
   </select>
 
 </mapper>

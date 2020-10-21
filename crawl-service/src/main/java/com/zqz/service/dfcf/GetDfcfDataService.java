@@ -26,7 +26,12 @@ public class GetDfcfDataService {
     @Autowired
     private DfcfRecordService dfcfRecordService;
 
-    public WebResp<GetDfcfDataResp> doGetDfcfData(Integer page, Integer limit, String stockCode, String processDate, String stockName) {
+    public WebResp<GetDfcfDataResp> doGetDfcfData(Integer page,
+                                                  Integer limit,
+                                                  String stockCode,
+                                                  String processDate,
+                                                  String stockName,
+                                                  String stockMarket) {
         WebResp<GetDfcfDataResp> resp = new WebResp<>();
         List<GetDfcfDataResp> list = new ArrayList<>();
         resp.setCode(0);
@@ -39,7 +44,7 @@ public class GetDfcfDataService {
         }
 
         Page<Object> startPage = PageHelper.startPage(page, limit);
-        List<DfcfRecord> records = dfcfRecordService.getRecordsByParam(stockCode, processDate, stockName);
+        List<DfcfRecord> records = dfcfRecordService.getRecordsByParam(stockCode, processDate, stockName, stockMarket);
         if (records.isEmpty()) {
             resp.setCode(1);
             resp.setMsg("无数据");
