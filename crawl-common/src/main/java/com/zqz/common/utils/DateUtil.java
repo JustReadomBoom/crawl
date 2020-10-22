@@ -171,4 +171,24 @@ public class DateUtil {
         return result;
     }
 
+    public static Integer compareHour(Date beginDate, Date lastDate){
+        long nd = 1000 * 24 * 60 * 60;// 一天的毫秒数
+        long nh = 1000 * 60 * 60;// 一小时的毫秒数
+        long day = 0;
+        long diff = lastDate.getTime() - beginDate.getTime();
+        long compareHour = diff % nd / nh + day * 24;
+        return  (int) (compareHour - day * 24);
+    }
+
+    public static void main(String[] args) {
+        Date now = new Date();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.HOUR_OF_DAY, 8);
+        Date date1 = calendar.getTime();
+
+        System.out.println(compareHour(now, date1));
+    }
+
 }

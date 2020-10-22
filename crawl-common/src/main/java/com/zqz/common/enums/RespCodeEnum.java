@@ -16,7 +16,8 @@ public enum RespCodeEnum {
     ERROR(9999, "系统异常"),
     NO_DATA(1, "无数据"),
     PROCESSING(2, "数据爬取中，请稍后查看!"),
-    SELECT_DATE(3, "请选择日期");
+    SELECT_DATE(3, "请选择日期"),
+    STOP_DO(4, "3小时内不允许再次操作");
 
     private Integer code;
     private String msg;

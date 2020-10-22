@@ -55,6 +55,15 @@ public class BusDataService {
                 resp.setMsg(RespCodeEnum.PROCESSING.getMsg());
                 return resp;
             }
+            //最近一次更新时间和当前时间比对
+            Integer compareHour = DateUtil.compareHour(optRecord.getuTime(), now);
+            log.info("---->当前时间和上次更新时间相差:[{}]小时", compareHour);
+            if(OptStatusEnum.SUCCESS.getStatus().equals(optRecord.getStatus()) && 3 > compareHour){
+                resp.setCode(RespCodeEnum.STOP_DO.getCode());
+                resp.setMsg(RespCodeEnum.STOP_DO.getMsg());
+                return resp;
+            }
+
             optRecord.setCount(optRecord.getCount() + 1);
             optRecord.setStatus(OptStatusEnum.PROCESSING.getStatus());
             optRecordService.updateByPrimaryKeySelective(optRecord);
