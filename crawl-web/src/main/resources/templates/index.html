@@ -9,7 +9,7 @@
 
 <div class="layui-layout layui-layout-admin">
   <div class="layui-header">
-    <div class="layui-logo" style="width:auto;color: #FFB800;font-size: 18px;">Stock Space （注: 每日15点更新当日数据）</div>
+    <div class="layui-logo" style="width:auto;color: #FFB800;font-size: 18px;">Stock Space （注: 每日15点更新当日数据, 勿频繁主动点击当日爬取）</div>
   </div>
 </div>
 
@@ -173,7 +173,7 @@
 
         //主动爬取
         function activeCrawl(){
-                layer.msg('你确定爬取？', {
+                layer.msg('爬取大约10分钟<br>你确定爬取？', {
                     time: 2000 ,     //2秒自动关闭
                     btn: ['确定', '取消'],
                     yes: function(index){
