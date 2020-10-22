@@ -1,5 +1,5 @@
 DROP TABLE IF EXISTS `crawl`.`dfcf_record`;
-CREATE TABLE `dfcf_record` (
+CREATE TABLE `crawl`.`dfcf_record` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `stock_market` varchar(32) DEFAULT NULL COMMENT '股市名',
   `stock_rank` varchar(32) DEFAULT NULL COMMENT '排行榜名',
@@ -23,11 +23,27 @@ CREATE TABLE `dfcf_record` (
   `someInfo` longtext COMMENT '扩展数据',
   `time_version` varchar(64) DEFAULT NULL COMMENT '批次号',
   `crawler_version` varchar(64) DEFAULT NULL COMMENT '抓取版本，规则：股市#排行榜#股市闭市时间',
+  `crawl_count` int(3) DEFAULT NULL COMMENT '抓取次数',
   `c_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `u_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `IDX_PRO_DATE` (`process_date`) USING BTREE,
-  KEY `IDX_STOCK_CODE_TIME_VER` (`stock_code`,`time_version`) USING BTREE,
+  UNIQUE KEY `IDX_PDATE_STOCK_CODE` (`process_date`, `stock_code`) USING BTREE,
   KEY `IDX_STOCK_NAME` (`stock_name`) USING BTREE,
   KEY `IDX_STOCK_MARKET` (`stock_market`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='东方财富-资金流向-个股资金流的数据';
+
+DROP TABLE IF EXISTS `crawl`.`opt_record`;
+CREATE TABLE `crawl`.`opt_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `channel_type` varchar(10) NOT NULL COMMENT '通道类型 DFCF-东方财富',
+  `process_date` date NOT NULL COMMENT '处理日期',
+  `status` char(1) DEFAULT NULL COMMENT '状态 P-处理中 S-完成 E-失败异常',
+  `count` int(3) DEFAULT NULL COMMENT '操作次数',
+  `c_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `u_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `IDX_CHANNEL_TYPE_PDATE` (`channel_type`, `process_date`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='操作记录表';
+
+

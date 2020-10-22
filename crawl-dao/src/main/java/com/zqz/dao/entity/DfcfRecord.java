@@ -53,6 +53,8 @@ public class DfcfRecord implements Serializable {
 
     private String crawlerVersion;
 
+    private Integer crawlCount;
+
     private Date cTime;
 
     private Date uTime;

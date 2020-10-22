@@ -24,6 +24,7 @@
     <result column="count_time" jdbcType="TIMESTAMP" property="countTime" />
     <result column="time_version" jdbcType="VARCHAR" property="timeVersion" />
     <result column="crawler_version" jdbcType="VARCHAR" property="crawlerVersion" />
+    <result column="crawl_count" jdbcType="INTEGER" property="crawlCount"/>
     <result column="c_time" jdbcType="TIMESTAMP" property="cTime" />
     <result column="u_time" jdbcType="TIMESTAMP" property="uTime" />
   </resultMap>
@@ -35,11 +36,39 @@
     main_net_inflow_amount, main_net_proportion, super_big_part_net_inFlow_amount, super_big_part_net_proportion, 
     big_part_net_inFlow_amount, big_part_net_proportion, middle_part_net_inFlow_amount, 
     middle_part_net_proportion, litter_part_net_inFlow_amount, litter_part_net_proportion, 
-    stock_page, count_time, time_version, crawler_version, c_time, u_time
+    stock_page, count_time, time_version, crawler_version, crawl_count, c_time, u_time
   </sql>
   <sql id="Blob_Column_List">
     someInfo
   </sql>
+
+  <select id="getRecordsByParam" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    FROM dfcf_record
+    where 1 = 1
+    <if test="stockCode != null and stockCode != ''">
+      and stock_code = #{stockCode}
+    </if>
+    <if test="processDate != null and processDate != ''">
+      and process_date = #{processDate}
+    </if>
+    <if test="stockName != null and stockName != ''">
+      and stock_name = #{stockName}
+    </if>
+    <if test="stockMarket != null and stockMarket != ''">
+      and stock_market = #{stockMarket}
+    </if>
+  </select>
+
+  <select id="selectByProDateAndCodeAndTVer" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM dfcf_record
+    WHERE stock_market = #{stockMarket}
+    AND process_date = #{processDate}
+    AND stock_code = #{stockCode}
+  </select>
 
   <insert id="insert" parameterType="com.zqz.dao.entity.DfcfRecord">
     insert into dfcf_record (stock_market, stock_rank, stock_code,
@@ -50,7 +79,7 @@
       middle_part_net_inFlow_amount, middle_part_net_proportion, 
       litter_part_net_inFlow_amount, litter_part_net_proportion, 
       stock_page, count_time, time_version, 
-      crawler_version, someInfo)
+      crawler_version, crawl_count, someInfo)
     values (#{stockMarket,jdbcType=VARCHAR}, #{stockRank,jdbcType=VARCHAR}, #{stockCode,jdbcType=VARCHAR}, 
       #{stockName,jdbcType=VARCHAR}, #{priceNew,jdbcType=DECIMAL}, #{stockChange,jdbcType=DECIMAL}, 
       #{processDate,jdbcType=DATE}, #{mainNetInflowAmount,jdbcType=DECIMAL}, #{mainNetProportion,jdbcType=DECIMAL}, 
@@ -59,16 +88,8 @@
       #{middlePartNetInflowAmount,jdbcType=DECIMAL}, #{middlePartNetProportion,jdbcType=DECIMAL}, 
       #{litterPartNetInflowAmount,jdbcType=DECIMAL}, #{litterPartNetProportion,jdbcType=DECIMAL}, 
       #{stockPage,jdbcType=INTEGER}, #{countTime,jdbcType=TIMESTAMP}, #{timeVersion,jdbcType=VARCHAR}, 
-      #{crawlerVersion,jdbcType=VARCHAR}, #{someinfo,jdbcType=LONGVARCHAR})
+      #{crawlerVersion,jdbcType=VARCHAR}, #{crawlCount,jdbcType=INTEGER}, #{someinfo,jdbcType=LONGVARCHAR})
   </insert>
-
-  <select id="selectByTimeVersion" resultMap="BaseResultMap">
-    SELECT
-    <include refid="Base_Column_List" />
-    FROM dfcf_record
-    WHERE time_version = #{timeVersion}
-    AND stock_code = #{stockCode};
-  </select>
 
   <update id="updateByPrimaryKeySelective" parameterType="com.zqz.dao.entity.DfcfRecord">
     update dfcf_record
@@ -136,6 +157,9 @@
       <if test="crawlerVersion != null">
         crawler_version = #{crawlerVersion,jdbcType=VARCHAR},
       </if>
+      <if test="crawlCount != null">
+        crawl_count = #{crawlCount,jdbcType=INTEGER},
+      </if>
       <if test="someinfo != null">
         someInfo = #{someinfo,jdbcType=LONGVARCHAR},
       </if>
@@ -143,30 +167,6 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <select id="getRecordByProcessDate" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    FROM dfcf_record
-    where process_date = #{date}
-  </select>
 
-  <select id="getRecordsByParam" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    FROM dfcf_record
-    where 1 = 1
-    <if test="stockCode != null and stockCode != ''">
-      and stock_code = #{stockCode}
-    </if>
-    <if test="processDate != null and processDate != ''">
-      and process_date = #{processDate}
-    </if>
-    <if test="stockName != null and stockName != ''">
-      and stock_name = #{stockName}
-    </if>
-    <if test="stockMarket != null and stockMarket != ''">
-      and stock_market = #{stockMarket}
-    </if>
-  </select>
 
 </mapper>

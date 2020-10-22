@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zqz.dao.mapper.OptRecordMapper">
+  <resultMap id="BaseResultMap" type="com.zqz.dao.entity.OptRecord">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="channel_type" jdbcType="VARCHAR" property="channelType" />
+    <result column="process_date" jdbcType="DATE" property="processDate" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="count" jdbcType="INTEGER" property="count" />
+    <result column="c_time" jdbcType="TIMESTAMP" property="cTime" />
+    <result column="u_time" jdbcType="TIMESTAMP" property="uTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, channel_type, process_date, `status`, `count`, c_time, u_time
+  </sql>
+
+  <insert id="insert" parameterType="com.zqz.dao.entity.OptRecord">
+    insert into opt_record (channel_type, process_date, `status`, `count`)
+    values (#{channelType,jdbcType=VARCHAR}, #{processDate,jdbcType=DATE}, #{status,jdbcType=CHAR}, #{count,jdbcType=INTEGER})
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.zqz.dao.entity.OptRecord">
+    update opt_record
+    <set>
+      <if test="channelType != null">
+        channel_type = #{channelType,jdbcType=VARCHAR},
+      </if>
+      <if test="processDate != null">
+        process_date = #{processDate,jdbcType=DATE},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=CHAR},
+      </if>
+      <if test="count != null">
+        `count` = #{count,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="getRecordByChannelAndDate" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from opt_record
+    where channel_type = #{channelType}
+    and process_date = #{processDate}
+  </select>
+
+  <update id="updateStatusByChannelAndDate">
+    update opt_record
+    set `status` = #{status}
+    where channel_type = #{channelType}
+    and process_date = #{processDate}
+  </update>
+
+</mapper>

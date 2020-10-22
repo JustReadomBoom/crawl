@@ -1,6 +1,5 @@
 package com.zqz.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.zqz.common.constants.FieldConstant;
 import com.zqz.common.enums.StockTimeEnum;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.HttpGet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -33,12 +31,9 @@ public class DfcfDataParseService {
     private DfcfRecordService dfcfRecordService;
 
     public void crawlData(String type) {
-        log.info("----> 开始数据抓取类型:[{}]", type);
-        List<DfcfRecord> records = dfcfRecordService.getRecordByProcessDate(new Date());
-        if (!records.isEmpty()) {
-            log.info("-----> 今日已处理");
-            return;
-        }
+        Date now = new Date();
+        String nowDate = DateUtil.getDateFormat3Str(now);
+        log.info("----> [{}]开始数据抓取类型:[{}]", nowDate, type);
 
         HttpClientUtils clientUtils = new HttpClientUtils();
         try {
@@ -49,7 +44,7 @@ public class DfcfDataParseService {
             String dayKey = StockTimeEnum.getDescByType(FieldConstant.DAY_KEY);
 
             String jsName = FieldConstant.JS_NAME.replace(FieldConstant.JS_DATA, CommonUtil.randomJSCode());
-            HttpGet httpGet = createDFCFHttpGet(jsName, dayKey, stockType, 1, FieldConstant.DATA_TYPE_KEY, FieldConstant.DAY_KEY);
+            HttpGet httpGet = createDFCFHttpGet(jsName, dayKey, stockType, 1);
             String result = clientUtils.executeWithResult(httpGet, "utf-8");
             log.info("------> 抓取东方财富-股市[{}]-排行榜[{}]的个股资金流的数据, 返回的结果为[{}]", type, FieldConstant.DAY_KEY, result);
             String[] s1 = result.split("data:");
@@ -62,7 +57,7 @@ public class DfcfDataParseService {
             if (pageInt > 1) {
                 int allPage = pageInt + 1;
                 for (int i = 1; i <= allPage; ++i) {
-                    HttpGet httpGet2 = createDFCFHttpGet(jsName, dayKey, stockType, i, stockType, dayKey);
+                    HttpGet httpGet2 = createDFCFHttpGet(jsName, dayKey, stockType, i);
                     try {
                         Thread.sleep(2 * 1000L);
                         String result2 = clientUtils.executeWithResult(httpGet2, "utf-8");
@@ -84,12 +79,13 @@ public class DfcfDataParseService {
             }
         } catch (Exception e) {
             log.error("抓取东方财富的个股资金流的数据出现异常:{}", e.getMessage(), e);
+            throw new RuntimeException("*****抓取东方财富的个股资金流的数据出现异常");
         } finally {
             clientUtils.close();
         }
     }
 
-    private HttpGet createDFCFHttpGet(String jsName, String stValue, String cmdValue, int i, String key, String timeKey) {
+    private HttpGet createDFCFHttpGet(String jsName, String stValue, String cmdValue, int i) {
         String time = String.valueOf(System.currentTimeMillis() / 30000);
         // 生成随机的js name code
         String code = CommonUtil.randomJSCode();
@@ -146,37 +142,61 @@ public class DfcfDataParseService {
             someInfo = new BigDecimal(infoStrings[16]).setScale(4, BigDecimal.ROUND_HALF_UP);
         }
         Date now = new Date();
-        DfcfRecord record = new DfcfRecord();
-        record.setStockMarket(null == StockTypeEnum.getTypeByDesc(stockType) ? stockType : StockTypeEnum.getTypeByDesc(stockType));
-        record.setStockRank(null == StockTimeEnum.getTypeByDesc(dayKey) ? dayKey : StockTimeEnum.getTypeByDesc(dayKey));
-        record.setStockCode(stockCode);
-        record.setStockName(stockName);
-        record.setPriceNew(priceNew);
-        record.setStockChange(change);
-        record.setProcessDate(now);
-        record.setMainNetInflowAmount(mainNetInflowAmount);
-        record.setMainNetProportion(mainNetProportion);
-        record.setSuperBigPartNetInflowAmount(superBigPartNetInFlowAmount);
-        record.setSuperBigPartNetProportion(superBigPartNetProportion);
-        record.setBigPartNetInflowAmount(bigPartNetInFlowAmount);
-        record.setBigPartNetProportion(bigPartNetProportion);
-        record.setMiddlePartNetInflowAmount(middlePartNetInFlowAmount);
-        record.setMiddlePartNetProportion(middlePartNetProportion);
-        record.setLitterPartNetInflowAmount(litterPartNetInFlowAmount);
-        record.setLitterPartNetProportion(litterPartNetProportion);
-        record.setCountTime(time);
-        record.setStockPage(stockPage);
-        record.setSomeinfo(someInfo.toString());
-        record.setTimeVersion(timeVersion);
-        record.setCrawlerVersion(crawlerVersion);
-        List<DfcfRecord> stockDfcfFundFlowInfoList = dfcfRecordService.selectByTimeVersion(stockCode, timeVersion);
-        if (CollectionUtils.isEmpty(stockDfcfFundFlowInfoList)) {
+
+        DfcfRecord oldRecord = dfcfRecordService.selectByMarketProDateAndCodeAndTVer(StockTypeEnum.getTypeByDesc(stockType), DateUtil.getDateFormat3Str(now), stockCode);
+
+        if (null == oldRecord) {
+            DfcfRecord record = new DfcfRecord();
+            record.setStockMarket(null == StockTypeEnum.getTypeByDesc(stockType) ? stockType : StockTypeEnum.getTypeByDesc(stockType));
+            record.setStockRank(null == StockTimeEnum.getTypeByDesc(dayKey) ? dayKey : StockTimeEnum.getTypeByDesc(dayKey));
+            record.setStockCode(stockCode);
+            record.setStockName(stockName);
+            record.setPriceNew(priceNew);
+            record.setStockChange(change);
+            record.setProcessDate(now);
+            record.setMainNetInflowAmount(mainNetInflowAmount);
+            record.setMainNetProportion(mainNetProportion);
+            record.setSuperBigPartNetInflowAmount(superBigPartNetInFlowAmount);
+            record.setSuperBigPartNetProportion(superBigPartNetProportion);
+            record.setBigPartNetInflowAmount(bigPartNetInFlowAmount);
+            record.setBigPartNetProportion(bigPartNetProportion);
+            record.setMiddlePartNetInflowAmount(middlePartNetInFlowAmount);
+            record.setMiddlePartNetProportion(middlePartNetProportion);
+            record.setLitterPartNetInflowAmount(litterPartNetInFlowAmount);
+            record.setLitterPartNetProportion(litterPartNetProportion);
+            record.setCountTime(time);
+            record.setStockPage(stockPage);
+            record.setSomeinfo(someInfo.toString());
+            record.setTimeVersion(timeVersion);
+            record.setCrawlerVersion(crawlerVersion);
+            record.setCrawlCount(1);
             int a = dfcfRecordService.insert(record);
             log.info("-----> 插入数据[{}]", 1 == a ? "SUCCESS" : "FAIL");
         } else {
-            log.info("-----> 该日期:[{}]-股市类型:[{}]-股票代码:[{}]已处理", DateUtil.getDateFormat3Str(now), record.getStockMarket(), stockCode);
+            log.info("-----> 该日期:[{}]-股票代码:[{}]已处理, 进行更新", DateUtil.getDateFormat3Str(now), stockCode);
+            oldRecord.setStockRank(null == StockTimeEnum.getTypeByDesc(dayKey) ? dayKey : StockTimeEnum.getTypeByDesc(dayKey));
+            oldRecord.setStockName(stockName);
+            oldRecord.setPriceNew(priceNew);
+            oldRecord.setStockChange(change);
+            oldRecord.setMainNetInflowAmount(mainNetInflowAmount);
+            oldRecord.setMainNetProportion(mainNetProportion);
+            oldRecord.setSuperBigPartNetInflowAmount(superBigPartNetInFlowAmount);
+            oldRecord.setSuperBigPartNetProportion(superBigPartNetProportion);
+            oldRecord.setBigPartNetInflowAmount(bigPartNetInFlowAmount);
+            oldRecord.setBigPartNetProportion(bigPartNetProportion);
+            oldRecord.setMiddlePartNetInflowAmount(middlePartNetInFlowAmount);
+            oldRecord.setMiddlePartNetProportion(middlePartNetProportion);
+            oldRecord.setLitterPartNetInflowAmount(litterPartNetInFlowAmount);
+            oldRecord.setLitterPartNetProportion(litterPartNetProportion);
+            oldRecord.setCountTime(time);
+            oldRecord.setStockPage(stockPage);
+            oldRecord.setSomeinfo(someInfo.toString());
+            oldRecord.setTimeVersion(timeVersion);
+            oldRecord.setCrawlerVersion(crawlerVersion);
+            oldRecord.setCrawlCount(oldRecord.getCrawlCount() + 1);
+            int up = dfcfRecordService.updateByPrimaryKeySelective(oldRecord);
+            log.info("-----> 更新结果:[{}]", up);
         }
-
     }
 
     private void cleanInfoStringArr(String[] infoStrings) {
