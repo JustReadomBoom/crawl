@@ -2,6 +2,7 @@ package com.zqz.service.dfcf;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.zqz.common.enums.RespCodeEnum;
 import com.zqz.common.model.GetDfcfDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.dao.entity.DfcfRecord;
@@ -34,20 +35,20 @@ public class GetDfcfDataService {
                                                   String stockMarket) {
         WebResp<GetDfcfDataResp> resp = new WebResp<>();
         List<GetDfcfDataResp> list = new ArrayList<>();
-        resp.setCode(0);
-        resp.setMsg("SUCCESS");
+        resp.setCode(RespCodeEnum.SUCCESS.getCode());
+        resp.setMsg(RespCodeEnum.SUCCESS.getMsg());
 
         if(StringUtils.isBlank(processDate)){
-            resp.setCode(1);
-            resp.setMsg("请选择日期");
+            resp.setCode(RespCodeEnum.SELECT_DATE.getCode());
+            resp.setMsg(RespCodeEnum.SELECT_DATE.getMsg());
             return resp;
         }
 
         Page<Object> startPage = PageHelper.startPage(page, limit);
         List<DfcfRecord> records = dfcfRecordService.getRecordsByParam(stockCode, processDate, stockName, stockMarket);
         if (records.isEmpty()) {
-            resp.setCode(1);
-            resp.setMsg("无数据");
+            resp.setCode(RespCodeEnum.NO_DATA.getCode());
+            resp.setMsg(RespCodeEnum.NO_DATA.getMsg());
             return resp;
         }
         int total = (int) startPage.getTotal();

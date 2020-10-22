@@ -1,7 +1,9 @@
 package com.zqz.web.controller;
 
+import com.zqz.common.enums.RespCodeEnum;
 import com.zqz.common.model.GetDfcfDataResp;
 import com.zqz.common.model.WebResp;
+import com.zqz.service.BusDataService;
 import com.zqz.service.dfcf.GetDfcfDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class DataController {
     @Autowired
     private GetDfcfDataService getDfcfDataService;
+    @Autowired
+    private BusDataService busDataService;
 
 
     @GetMapping("/get/dfcf")
@@ -37,8 +41,22 @@ public class DataController {
         }catch (Exception e){
             log.error("*****getDfcfData异常:[{}]", e.getMessage(), e);
             WebResp<GetDfcfDataResp> resp = new WebResp<>();
-            resp.setCode(9999);
-            resp.setMsg("FAIL");
+            resp.setCode(RespCodeEnum.ERROR.getCode());
+            resp.setMsg(RespCodeEnum.ERROR.getMsg());
+            return resp;
+        }
+    }
+
+    @GetMapping("/active/crawl")
+    @ResponseBody
+    public WebResp activeCrawl(){
+        try{
+            return busDataService.doActiveCrawl();
+        }catch (Exception e){
+            log.error("*****activeCrawl异常:[{}]", e.getMessage(), e);
+            WebResp resp = new WebResp<>();
+            resp.setCode(RespCodeEnum.ERROR.getCode());
+            resp.setMsg(RespCodeEnum.ERROR.getMsg());
             return resp;
         }
     }

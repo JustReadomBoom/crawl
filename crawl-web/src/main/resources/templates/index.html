@@ -46,6 +46,8 @@
     </div>
     &nbsp;
     <button class="layui-btn" data-type="reload" style="background-color: #007DDB">搜索</button>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="layui-btn" style="background-color: limegreen" id="activeCrawl">爬取当日</button>
 </div>
 
 <table class="layui-hide" id="dfcf" lay-filter="test"></table>
@@ -64,11 +66,11 @@
 <script src="/js/layui/layui.js"></script>
 
 <script th:inline="none">
-    layui.use(['table', 'laypage', 'laydate'], function () {
+    layui.use(['table', 'laypage', 'laydate', 'layer'], function () {
         var table = layui.table
             , laypage = layui.laypage
             , laydate = layui.laydate
-
+            , layer = layui.layer
         table.render({
             elem: '#dfcf'
             , height: 920
@@ -163,6 +165,32 @@
                     }
                 }, 'data');
             }
+        };
+
+        $("#activeCrawl").click(function(){
+            activeCrawl();
+        });
+
+        //主动爬取
+        function activeCrawl(){
+                layer.msg('你确定爬取？', {
+                    time: 2000 ,     //2秒自动关闭
+                    btn: ['确定', '取消'],
+                    yes: function(index){
+                        $.ajax({
+                            url:"/data/active/crawl",
+                            type:"Get",
+                            success:function(data){
+                                console.log(data);
+                                layer.msg(data.msg);
+                            },
+                            error:function(data){
+                                layer.msg(data.msg);
+                            }
+                        });
+                        layer.close(index);
+                    }
+                });
         };
 
         $('.queryDataModel .layui-btn').on('click', function () {
