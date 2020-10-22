@@ -28,7 +28,7 @@ CREATE TABLE `crawl`.`dfcf_record` (
   `u_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `IDX_PRO_DATE` (`process_date`) USING BTREE,
-  UNIQUE KEY `IDX_PDATE_STOCK_CODE` (`process_date`, `stock_code`) USING BTREE,
+  UNIQUE KEY `IDX_PDATE_STOCK_CODE_MARKET` (`stock_code`,`stock_market`,`process_date`) USING BTREE,
   KEY `IDX_STOCK_NAME` (`stock_name`) USING BTREE,
   KEY `IDX_STOCK_MARKET` (`stock_market`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='东方财富-资金流向-个股资金流的数据';
