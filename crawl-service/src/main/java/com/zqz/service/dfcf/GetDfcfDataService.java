@@ -73,7 +73,7 @@ public class GetDfcfDataService {
             dr.setMiddlePartNetProportion(e.getMiddlePartNetProportion());
             dr.setLitterPartNetInflowAmount(e.getLitterPartNetInflowAmount());
             dr.setLitterPartNetProportion(e.getLitterPartNetProportion());
-            dr.setCreateTime(e.getCTime());
+            dr.setCreateTime(e.getUTime());
             list.add(dr);
         });
         resp.setData(list);
