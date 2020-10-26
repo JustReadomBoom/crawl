@@ -32,4 +32,8 @@ public class DfcfRecordService {
     public DfcfRecord selectByMarketProDateAndCodeAndTVer(String stockMarket, String processDate, String stockCode) {
         return mapper.selectByProDateAndCodeAndTVer(stockMarket, processDate, stockCode);
     }
+
+    public List<DfcfRecord> getLastDaysData(String stockCode, String stockMarket) {
+        return mapper.getLastDaysData(stockCode, stockMarket);
+    }
 }

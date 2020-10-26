@@ -4,14 +4,18 @@ import com.zqz.common.enums.ChannelTypeEnum;
 import com.zqz.common.enums.OptStatusEnum;
 import com.zqz.common.enums.RespCodeEnum;
 import com.zqz.common.enums.StockTypeEnum;
+import com.zqz.common.model.GetBrokenDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.common.utils.DateUtil;
+import com.zqz.dao.entity.DfcfRecord;
 import com.zqz.dao.entity.OptRecord;
+import com.zqz.dao.service.DfcfRecordService;
 import com.zqz.dao.service.OptRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +34,8 @@ public class BusDataService {
     private OptRecordService optRecordService;
     @Autowired
     private DfcfDataParseService dfcfDataParseService;
+    @Autowired
+    private DfcfRecordService dfcfRecordService;
     private ExecutorService executor = Executors.newFixedThreadPool(3);
 
     /**
@@ -58,7 +64,7 @@ public class BusDataService {
             //最近一次更新时间和当前时间比对
             Integer compareHour = DateUtil.compareHour(optRecord.getuTime(), now);
             log.info("---->当前时间和上次更新时间相差:[{}]小时", compareHour);
-            if(OptStatusEnum.SUCCESS.getStatus().equals(optRecord.getStatus()) && 3 > compareHour){
+            if (OptStatusEnum.SUCCESS.getStatus().equals(optRecord.getStatus()) && 3 > compareHour) {
                 resp.setCode(RespCodeEnum.STOP_DO.getCode());
                 resp.setMsg(RespCodeEnum.STOP_DO.getMsg());
                 return resp;
@@ -92,7 +98,7 @@ public class BusDataService {
      * @Return: void
      * @Date: 14:04 2020/10/22
      */
-    private void doTask(String nowDate){
+    private void doTask(String nowDate) {
         List<StockTypeEnum> stockTypes = initStock();
         try {
             stockTypes.forEach(e -> {
@@ -112,4 +118,27 @@ public class BusDataService {
     }
 
 
+    public WebResp<GetBrokenDataResp> doGetBrokenData(String stockCode, String stockMarket) {
+        WebResp<GetBrokenDataResp> resp = new WebResp<>();
+        resp.setCode(RespCodeEnum.SUCCESS.getCode());
+        resp.setMsg(RespCodeEnum.SUCCESS.getMsg());
+
+        List<GetBrokenDataResp> list = new ArrayList<>();
+
+        List<DfcfRecord> records = dfcfRecordService.getLastDaysData(stockCode, stockMarket);
+        if (records.isEmpty()) {
+            resp.setCode(RespCodeEnum.NO_DATA.getCode());
+            resp.setMsg(RespCodeEnum.NO_DATA.getMsg());
+            return resp;
+        }
+        records.forEach(r -> {
+            GetBrokenDataResp dataResp = new GetBrokenDataResp();
+            dataResp.setProcessDate(r.getProcessDate());
+            dataResp.setCurrentPrice(r.getPriceNew());
+            list.add(dataResp);
+        });
+
+        resp.setData(list);
+        return resp;
+    }
 }

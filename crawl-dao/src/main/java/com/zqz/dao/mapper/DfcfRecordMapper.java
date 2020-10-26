@@ -21,4 +21,7 @@ public interface DfcfRecordMapper {
     DfcfRecord selectByProDateAndCodeAndTVer(@Param("stockMarket") String stockMarket,
                                              @Param("processDate") String processDate,
                                              @Param("stockCode") String stockCode);
+
+    List<DfcfRecord> getLastDaysData(@Param("stockCode") String stockCode,
+                                       @Param("stockMarket") String stockMarket);
 }

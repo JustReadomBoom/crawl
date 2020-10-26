@@ -1,6 +1,7 @@
 package com.zqz.web.controller;
 
 import com.zqz.common.enums.RespCodeEnum;
+import com.zqz.common.model.GetBrokenDataResp;
 import com.zqz.common.model.GetDfcfDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.service.BusDataService;
@@ -54,6 +55,21 @@ public class DataController {
             return busDataService.doActiveCrawl();
         }catch (Exception e){
             log.error("*****activeCrawl异常:[{}]", e.getMessage(), e);
+            WebResp resp = new WebResp<>();
+            resp.setCode(RespCodeEnum.ERROR.getCode());
+            resp.setMsg(RespCodeEnum.ERROR.getMsg());
+            return resp;
+        }
+    }
+
+    @GetMapping("/get/broken/data")
+    @ResponseBody
+    public WebResp<GetBrokenDataResp> getBrokenData(@RequestParam("stockCode") String stockCode,
+                                                    @RequestParam("stockMarket") String stockMarket){
+        try{
+            return busDataService.doGetBrokenData(stockCode, stockMarket);
+        }catch (Exception e){
+            log.error("*****getBrokenData异常:[{}]", e.getMessage(), e);
             WebResp resp = new WebResp<>();
             resp.setCode(RespCodeEnum.ERROR.getCode());
             resp.setMsg(RespCodeEnum.ERROR.getMsg());

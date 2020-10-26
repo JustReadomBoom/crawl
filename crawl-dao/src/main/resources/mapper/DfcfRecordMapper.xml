@@ -70,6 +70,15 @@
     AND stock_code = #{stockCode}
   </select>
 
+  <select id="getLastDaysData" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM dfcf_record
+    WHERE stock_code = #{stockCode}
+    AND stock_market = #{stockMarket}
+    AND process_date > DATE_SUB(CURDATE(), INTERVAL 10 DAY);
+  </select>
+
   <insert id="insert" parameterType="com.zqz.dao.entity.DfcfRecord">
     insert into dfcf_record (stock_market, stock_rank, stock_code,
       stock_name, price_new, stock_change, 
@@ -166,7 +175,5 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-
-
 
 </mapper>
