@@ -254,6 +254,7 @@
                 if (obj.event === 'detail') {  //查看详情趋势图
                     var stockCode = data.stockCode;
                     var stockMarket = data.stockMarket;
+                    var stockName = data.stockName;
                     // 基于准备好的dom，初始化echarts实例
                     var myChart = echarts.init(document.getElementById('speedChartMain'));
                     // 使用刚指定的配置项和数据显示图表。
@@ -283,7 +284,7 @@
                         }
 
                         layer.open({
-                            title: '最新价格趋势图',
+                            title: stockMarket + '-' + stockName + '-近十日最新价格趋势图',
                             type: 1,
                             shade: false,
                             area: ['900px', '460px'],
