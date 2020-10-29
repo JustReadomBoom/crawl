@@ -76,7 +76,7 @@
     FROM dfcf_record
     WHERE stock_code = #{stockCode}
     AND stock_market = #{stockMarket}
-    AND process_date > DATE_SUB(CURDATE(), INTERVAL 10 DAY);
+    AND process_date > DATE_SUB(CURDATE(), INTERVAL 25 DAY);
   </select>
 
   <insert id="insert" parameterType="com.zqz.dao.entity.DfcfRecord">
