@@ -67,7 +67,7 @@
 
 <div id="speedChart" style="display: none;">
     <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-    <div id="speedChartMain" style="width: 600px; height: 400px;"></div>
+    <div id="speedChartMain" style="width: 1500px; height: 400px;"></div>
 </div>
 
 
@@ -266,6 +266,7 @@
                     $.get(url, function (data) {
                         if (data != null) {
                             datas = data.data;
+                            console.log("datas=" + datas);
                             for (var i = 0; i < datas.length; i++) {
                                 times.push(datas[i].processDate);
                                 speeds.push(datas[i].currentPrice);
