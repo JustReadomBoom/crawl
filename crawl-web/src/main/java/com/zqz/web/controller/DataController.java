@@ -37,6 +37,7 @@ public class DataController {
     private UserService userService;
     @Autowired
     private RedisClient redisClient;
+    private static final String HREF = "<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>";
 
 
     @GetMapping("/get/dfcf")
@@ -54,7 +55,7 @@ public class DataController {
             if(authToken.equals("null") || StringUtils.isBlank(authToken)){
                 WebResp resp = new WebResp<>();
                 resp.setCode(1000);
-                resp.setMsg("未登录，<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>");
+                resp.setMsg("未登录，" + HREF);
                 return resp;
             }
             String redisToken = redisClient.get("AuthToken");
@@ -62,7 +63,7 @@ public class DataController {
             if(StringUtils.isBlank(redisToken) || !redisToken.equals(authToken)){
                 WebResp resp = new WebResp<>();
                 resp.setCode(1000);
-                resp.setMsg("未登录，<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>");
+                resp.setMsg("未登录，" + HREF);
                 return resp;
             }
             return getDfcfDataService.doGetDfcfData(page, limit, stockCode, processDate, stockName, stockMarket);
@@ -84,7 +85,7 @@ public class DataController {
             if(authToken.equals("null") || StringUtils.isBlank(authToken)){
                 WebResp resp = new WebResp<>();
                 resp.setCode(1000);
-                resp.setMsg("未登录，<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>");
+                resp.setMsg("未登录，" + HREF);
                 return resp;
             }
             String redisToken = redisClient.get("AuthToken");
@@ -92,7 +93,7 @@ public class DataController {
             if(StringUtils.isBlank(redisToken) || !redisToken.equals(authToken)){
                 WebResp resp = new WebResp<>();
                 resp.setCode(1000);
-                resp.setMsg("未登录，<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>");
+                resp.setMsg("未登录，" + HREF);
                 return resp;
             }
             return busDataService.doActiveCrawl();
@@ -108,8 +109,25 @@ public class DataController {
     @GetMapping("/get/broken/data")
     @ResponseBody
     public WebResp<GetBrokenDataResp> getBrokenData(@RequestParam("stockCode") String stockCode,
-                                                    @RequestParam("stockMarket") String stockMarket) {
+                                                    @RequestParam("stockMarket") String stockMarket,
+                                                    HttpServletRequest request) {
         try {
+            String authToken = request.getHeader("AuthToken");
+            log.info("Header-Token={}", authToken);
+            if(authToken.equals("null") || StringUtils.isBlank(authToken)){
+                WebResp resp = new WebResp<>();
+                resp.setCode(1000);
+                resp.setMsg("未登录，" + HREF);
+                return resp;
+            }
+            String redisToken = redisClient.get("AuthToken");
+            log.info("Redis-Token:[{}]", redisToken);
+            if(StringUtils.isBlank(redisToken) || !redisToken.equals(authToken)){
+                WebResp resp = new WebResp<>();
+                resp.setCode(1000);
+                resp.setMsg("未登录，" + HREF);
+                return resp;
+            }
             return busDataService.doGetBrokenData(stockCode, stockMarket);
         } catch (Exception e) {
             log.error("*****getBrokenData异常:[{}]", e.getMessage(), e);

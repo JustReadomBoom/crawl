@@ -265,8 +265,12 @@
                     var url = "/data/get/broken/data?stockCode=" + stockCode + "&stockMarket=" + stockMarket;
                     var times = [];  //時間数组（实际用来盛放X轴坐标值）
                     var speeds = [];  //速度数组（实际用来盛放Y坐标值）
-                    $.get(url, function (data) {
-                        if (data != null) {
+
+                    $.ajax({
+                        url: url,
+                        type: "Get",
+                        headers:{'AuthToken': localStorage.getItem("AuthToken")},
+                        success: function (data) {
                             datas = data.data;
                             for (var i = 0; i < datas.length; i++) {
                                 times.push(datas[i].processDate);
@@ -284,17 +288,48 @@
                                     data: speeds
                                 }]
                             });
-                        }
 
-                        layer.open({
-                            title: stockMarket + ' - ' + stockName + ' - 近25日最新价格趋势图',
-                            type: 1,
-                            shade: [0.8, '#393D49'],
-                            area: ['1500px', '460px'],
-                            shadeClose: true, //点击遮罩关闭
-                            content: $("#speedChart")
-                        });
-                    }, "json");
+                            layer.open({
+                                title: stockMarket + ' - ' + stockName + ' - 近25日最新价格趋势图',
+                                type: 1,
+                                shade: [0.8, '#393D49'],
+                                area: ['1500px', '460px'],
+                                shadeClose: true, //点击遮罩关闭
+                                content: $("#speedChart")
+                            });
+                        }
+                    });
+
+                    // $.get(url,function (data) {
+                    //     if (data != null) {
+                    //         datas = data.data;
+                    //         for (var i = 0; i < datas.length; i++) {
+                    //             times.push(datas[i].processDate);
+                    //             speeds.push(datas[i].currentPrice);
+                    //         }
+                    //         //之前option中legend和 XAxis的data,series 为空，所以现在将数据填充进去
+                    //         myChart.setOption({    //加载数据图表
+                    //             xAxis: {
+                    //                 data: times
+                    //             },
+                    //             series: [{
+                    //                 // 根据名字对应到相应的系列
+                    //                 name: "最新价格",
+                    //                 type: 'line',
+                    //                 data: speeds
+                    //             }]
+                    //         });
+                    //     }
+                    //
+                    //     layer.open({
+                    //         title: stockMarket + ' - ' + stockName + ' - 近25日最新价格趋势图',
+                    //         type: 1,
+                    //         shade: [0.8, '#393D49'],
+                    //         area: ['1500px', '460px'],
+                    //         shadeClose: true, //点击遮罩关闭
+                    //         content: $("#speedChart")
+                    //     });
+                    // }, "json");
                 } else if (obj.event === 'del') {        //TODO 未实现
                     layer.confirm('真的删除行么', function (index) {
                         obj.del();
