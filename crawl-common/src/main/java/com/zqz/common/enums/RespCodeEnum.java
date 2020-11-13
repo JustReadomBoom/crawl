@@ -17,7 +17,9 @@ public enum RespCodeEnum {
     NO_DATA(1, "无数据"),
     PROCESSING(2, "数据爬取中，请稍后查看!"),
     SELECT_DATE(3, "请选择日期"),
-    STOP_DO(4, "3小时内不允许再次操作");
+    STOP_DO(4, "3小时内不允许再次操作"),
+    NO_USER(5, "用户不存在"),
+    ERROR_PWD(6, "密码错误");
 
     private Integer code;
     private String msg;

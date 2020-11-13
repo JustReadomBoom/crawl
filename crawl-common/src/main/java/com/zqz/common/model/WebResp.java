@@ -19,4 +19,6 @@ public class WebResp<T> {
     private Integer count;
 
     private List<T> data;
+
+    private String authToken;
 }
