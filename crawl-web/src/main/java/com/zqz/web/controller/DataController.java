@@ -38,6 +38,7 @@ public class DataController {
     @Autowired
     private RedisClient redisClient;
     private static final String HREF = "<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>";
+//    private static final String HREF = "<a href=\"http://localhost:9518/zqz/login\">点我登录</a>";
 
 
     @GetMapping("/get/dfcf")

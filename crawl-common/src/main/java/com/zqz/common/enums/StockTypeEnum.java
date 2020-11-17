@@ -48,5 +48,26 @@ public enum StockTypeEnum {
         return null;
     }
 
-
+    //通过股票类型获取url参数fs
+    public static String getUrlParamFSByType(String desc){
+        if(desc == null) {
+            return null;
+        }
+        if(SH_SZ_A.getDesc().equals(desc)){
+            return "m:0+t:6+f:!2,m:0+t:13+f:!2,m:0+t:80+f:!2,m:1+t:2+f:!2,m:1+t:23+f:!2";
+        }else if(SH_A.getDesc().equals(desc)){
+            return "m:1+t:2+f:!2,m:1+t:23+f:!2";
+        }else if(SZ_A.getDesc().equals(desc)){
+            return "m:0+t:6+f:!2,m:0+t:13+f:!2,m:0+t:80+f:!2";
+        }else if(CREATE.getDesc().equals(desc)){
+            return "m:0+t:80+f:!2";
+        }else if(MID_SMALL.getDesc().equals(desc)){
+            return "m:0+t:13+f:!2";
+        }else if(SH_B.getDesc().equals(desc)){
+            return "m:1+t:3+f:!2";
+        }else if(SZ_B.getDesc().equals(desc)){
+            return "m:0+t:7+f:!2";
+        }
+        return null;
+    }
 }

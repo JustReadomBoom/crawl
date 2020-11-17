@@ -1,6 +1,8 @@
 package com.zqz.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.zqz.common.constants.FieldConstant;
 import com.zqz.common.enums.StockTimeEnum;
 import com.zqz.common.enums.StockTypeEnum;
@@ -11,12 +13,12 @@ import com.zqz.common.utils.HttpUtils;
 import com.zqz.dao.entity.DfcfRecord;
 import com.zqz.dao.service.DfcfRecordService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -37,39 +39,49 @@ public class DfcfDataParseService {
 
         HttpClientUtils clientUtils = new HttpClientUtils();
         try {
-            String formatDay = new SimpleDateFormat(FieldConstant.TIME_FORMAT1).format(new Date());
             //股市类型
             String stockType = StockTypeEnum.getDescByType(type);
             //今日排行
             String dayKey = StockTimeEnum.getDescByType(FieldConstant.DAY_KEY);
-
-            String jsName = FieldConstant.JS_NAME.replace(FieldConstant.JS_DATA, CommonUtil.randomJSCode());
-            HttpGet httpGet = createDFCFHttpGet(jsName, dayKey, stockType, 1);
+            //从第一页首页获取总记录数，计算总页码
+            HttpGet httpGet = createDFCFHttpGet(stockType, 1);
             String result = clientUtils.executeWithResult(httpGet, "utf-8");
             log.info("------> 抓取东方财富-股市[{}]-排行榜[{}]的个股资金流的数据, 返回的结果为[{}]", type, FieldConstant.DAY_KEY, result);
-            String[] s1 = result.split("data:");
-            String data1 = s1[0];
-            int a1 = data1.indexOf("pages:");
-            int a2 = data1.indexOf(",date");
-            String page = data1.substring(a1 + 6, a2);
-            log.info("------> 获取总页数:[{}]", page);
-            int pageInt = Integer.valueOf(page);
-            if (pageInt > 1) {
-                int allPage = pageInt + 1;
-                for (int i = 1; i <= allPage; ++i) {
-                    HttpGet httpGet2 = createDFCFHttpGet(jsName, dayKey, stockType, i);
+            if (StringUtils.isBlank(result)) {
+                log.warn("------> stockType[{}]无今日排行数据", type);
+                return;
+            }
+
+            String resultJsonStr = result.substring(result.indexOf("({") + 1, result.length() - 2);
+
+            JSONObject jsonObj = JSON.parseObject(resultJsonStr);
+            JSONObject dataObj = jsonObj.getJSONObject("data");
+            Integer total = dataObj.getInteger("total");
+            log.info("----> 总记录数:[{}]", total);
+
+            //总页码
+            int page = total / 50;
+            log.info("----> 总页数:[{}]", page);
+
+            if (page > 1) {
+                int allPage = page + 1;
+                for (int i = 1; i <= allPage; i++) {
                     try {
-                        Thread.sleep(2 * 1000L);
-                        String result2 = clientUtils.executeWithResult(httpGet2, "utf-8");
-                        log.info("-----> 第[{}]页, 返回的结果[{}]", i, result2);
-                        String[] dateS2 = result2.split("data:");
-                        String dataArr2 = dateS2[1].substring(0, dateS2[1].length() - 1);
-                        log.info("-----> 第[{}]页,解析返回数据股票数值为[{}]", i, dataArr2);
-                        JSONArray jsonArray = JSONArray.parseArray(dataArr2);
-                        int size = jsonArray.size();
-                        for (int k = 0; k < size; k++) {
-                            // 存储数据
-                            insertDfcfData(jsonArray, k, stockType, dayKey, formatDay, i);
+                        HttpGet httpGet2 = createDFCFHttpGet(stockType, i);
+                        Thread.sleep(1000L);
+                        String innerResult = clientUtils.executeWithResult(httpGet2, "utf-8");
+                        log.info("-----> 第[{}]页, 返回的结果[{}]", i, innerResult);
+                        if (StringUtils.isNotBlank(innerResult)) {
+                            //解析数据
+                            String jsonStr = innerResult.substring(innerResult.indexOf("({") + 1, innerResult.length() - 2);
+                            JSONObject innerJsonObj = JSON.parseObject(jsonStr);
+                            JSONObject innerDataObj = innerJsonObj.getJSONObject("data");
+                            JSONArray diffArray = innerDataObj.getJSONArray("diff");
+                            for (int k = 0; k < diffArray.size(); k++) {
+                                // 存储数据
+                                JSONObject dataObject = diffArray.getJSONObject(k);
+                                insertDfcfData(dataObject, stockType, dayKey, i);
+                            }
                         }
                     } catch (Exception e) {
                         log.error("***** 股市[{}]-排行榜[{}]-第[{}]页解析数据出现异常:{}", stockType, FieldConstant.DAY_KEY, i, e.getMessage(), e);
@@ -85,23 +97,24 @@ public class DfcfDataParseService {
         }
     }
 
-    private HttpGet createDFCFHttpGet(String jsName, String stValue, String cmdValue, int i) {
-        String time = String.valueOf(System.currentTimeMillis() / 30000);
-        // 生成随机的js name code
-        String code = CommonUtil.randomJSCode();
-        String jsNameReal = jsName.replace("{{name.data}}", code);
+    private HttpGet createDFCFHttpGet(String stockType, Integer pageIndex) {
         Map<String, Object> params = new HashMap<>();
-        params.put("type", "ct");
-        params.put("st", stValue);
-        params.put("sr", "-1");
-        params.put("p", String.valueOf(i));
-        params.put("ps", "50");
-        params.put("js", jsNameReal);
-        params.put("token", "894050c76af8597a853f5b408b759f5d");
-        params.put("cmd", cmdValue);
-        params.put("sty", "DCFFITA");
-        params.put("rt", time);
-        HttpGet httpGet = HttpUtils.get(FieldConstant.DFCF_FUND_FLOW_URL, params);
+        params.put("pn", pageIndex);  //页码
+        params.put("pz", "50");
+        params.put("po", "1");
+        params.put("np", "1");
+        params.put("ut", "b2884a393a59ad64002292a3e90d46a5");
+        params.put("fltt", "2");
+        params.put("invt", "2");
+        params.put("fid0", "f4001");
+        params.put("fid", "f62");
+        params.put("fs", StockTypeEnum.getUrlParamFSByType(stockType));   //每个板块不同
+        params.put("stat", "1");
+        params.put("fields", "f12,f14,f2,f3,f62,f184,f66,f69,f72,f75,f78,f81,f84,f87,f204,f205,f124");
+        params.put("rt", CommonUtil.getRandom(true, 8));   //随机数
+        params.put("cb", "jQuery" + CommonUtil.getRandom(true, 21) + "_" + CommonUtil.getRandom(true, 13));    //jQuery + 随机数 + _ +随机数
+        params.put("_", CommonUtil.getRandom(true, 13));  //随机数
+        HttpGet httpGet = HttpUtils.get("http://push2.eastmoney.com/api/qt/clist/get", params);
 
         httpGet.addHeader("Accept", "*/*");
         httpGet.addHeader("Accept-Encoding", "gzip, deflate");
@@ -113,34 +126,43 @@ public class DfcfDataParseService {
         return httpGet;
     }
 
-    private void insertDfcfData(JSONArray jsonArray, int k, String stockType, String dayKey, String formatDay, int stockPage) throws Exception {
-        String infoStr = (String) jsonArray.get(k);
-        log.info("-----> 需处理的数据,第[{}]个，数据为[{}]", k, infoStr);
-        String[] infoStrings = infoStr.split(",");
-        // 清洗数据将 "-" 转化为 "0"
-        cleanInfoStringArr(infoStrings);
-        String stockCode = infoStrings[1];
-        String stockName = infoStrings[2];
-        String stockTime = infoStrings[15];
-        BigDecimal priceNew = new BigDecimal(infoStrings[3]).setScale(2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal change = new BigDecimal(infoStrings[4]).setScale(2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal mainNetInflowAmount = new BigDecimal(infoStrings[5]).setScale(4, BigDecimal.ROUND_HALF_UP);
-        BigDecimal mainNetProportion = new BigDecimal(infoStrings[6]).setScale(2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal superBigPartNetInFlowAmount = new BigDecimal(infoStrings[7]).setScale(4, BigDecimal.ROUND_HALF_UP);
-        BigDecimal superBigPartNetProportion = new BigDecimal(infoStrings[8]).setScale(2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal bigPartNetInFlowAmount = new BigDecimal(infoStrings[9]).setScale(4, BigDecimal.ROUND_HALF_UP);
-        BigDecimal bigPartNetProportion = new BigDecimal(infoStrings[10]).setScale(2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal middlePartNetInFlowAmount = new BigDecimal(infoStrings[11]).setScale(4, BigDecimal.ROUND_HALF_UP);
-        BigDecimal middlePartNetProportion = new BigDecimal(infoStrings[12]).setScale(2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal litterPartNetInFlowAmount = new BigDecimal(infoStrings[13]).setScale(4, BigDecimal.ROUND_HALF_UP);
-        BigDecimal litterPartNetProportion = new BigDecimal(infoStrings[14]).setScale(2, BigDecimal.ROUND_HALF_UP);
-        Date time = DateUtil.format1.get().parse(infoStrings[15]);
-        String timeVersion = stockType + "#" + dayKey + "#" + stockTime;
-        String crawlerVersion = stockType + "#" + dayKey + "#" + formatDay;
-        BigDecimal someInfo = new BigDecimal(0);
-        if (infoStrings[16] != null) {
-            someInfo = new BigDecimal(infoStrings[16]).setScale(4, BigDecimal.ROUND_HALF_UP);
+    private void insertDfcfData(JSONObject dataObj, String stockType, String dayKey, Integer stockPage) throws Exception {
+        //股票代码
+        String stockCode = dataObj.getString("f12");
+        //股票名字
+        String stockName = dataObj.getString("f14");
+
+        //判空处理
+        String priceNewStr = dataObj.getString("f2");
+        if("-".equals(priceNewStr)){
+            log.info("[{}][{}]无价格相关数据,过滤此记录", stockCode, stockName);
+            return;
         }
+        //股票最新价格
+        BigDecimal priceNew = dataObj.getBigDecimal("f2");
+        //涨跌幅
+        BigDecimal change = dataObj.getBigDecimal("f3");
+        //主力净额
+        BigDecimal mainNetInflowAmount = dataObj.getBigDecimal("f62");
+        //主力净流入--净占比
+        BigDecimal mainNetProportion = dataObj.getBigDecimal("f184");
+        //超大单净额
+        BigDecimal superBigPartNetInFlowAmount = dataObj.getBigDecimal("f66");
+        //超大单净流入--净占比
+        BigDecimal superBigPartNetProportion = dataObj.getBigDecimal("f69");
+        //大单净额
+        BigDecimal bigPartNetInFlowAmount = dataObj.getBigDecimal("f72");
+        //大单净流入--净占比
+        BigDecimal bigPartNetProportion = dataObj.getBigDecimal("f75");
+        //中单净额
+        BigDecimal middlePartNetInFlowAmount = dataObj.getBigDecimal("f78");
+        //中单净流入--净占比
+        BigDecimal middlePartNetProportion = dataObj.getBigDecimal("f81");
+        //小单净额
+        BigDecimal litterPartNetInFlowAmount = dataObj.getBigDecimal("f84");
+        //小单净流入--净占比
+        BigDecimal litterPartNetProportion = dataObj.getBigDecimal("f87");
+
         Date now = new Date();
 
         DfcfRecord oldRecord = dfcfRecordService.selectByMarketProDateAndCodeAndTVer(StockTypeEnum.getTypeByDesc(stockType), DateUtil.getDateFormat3Str(now), stockCode);
@@ -164,16 +186,13 @@ public class DfcfDataParseService {
             record.setMiddlePartNetProportion(middlePartNetProportion);
             record.setLitterPartNetInflowAmount(litterPartNetInFlowAmount);
             record.setLitterPartNetProportion(litterPartNetProportion);
-            record.setCountTime(time);
+            record.setCountTime(now);
             record.setStockPage(stockPage);
-            record.setSomeinfo(someInfo.toString());
-            record.setTimeVersion(timeVersion);
-            record.setCrawlerVersion(crawlerVersion);
             record.setCrawlCount(1);
             int a = dfcfRecordService.insert(record);
             log.info("-----> 插入数据[{}]", 1 == a ? "SUCCESS" : "FAIL");
         } else {
-            log.info("-----> 该日期:[{}]-股票代码:[{}]已处理, 进行更新", DateUtil.getDateFormat3Str(now), stockCode);
+            log.info("-----> 该日期:[{}]-股票类型:[{}]-股票代码:[{}]已处理, 进行更新", DateUtil.getDateFormat3Str(now), StockTypeEnum.getTypeByDesc(stockType), stockCode);
             oldRecord.setStockRank(null == StockTimeEnum.getTypeByDesc(dayKey) ? dayKey : StockTimeEnum.getTypeByDesc(dayKey));
             oldRecord.setStockName(stockName);
             oldRecord.setPriceNew(priceNew);
@@ -188,20 +207,11 @@ public class DfcfDataParseService {
             oldRecord.setMiddlePartNetProportion(middlePartNetProportion);
             oldRecord.setLitterPartNetInflowAmount(litterPartNetInFlowAmount);
             oldRecord.setLitterPartNetProportion(litterPartNetProportion);
-            oldRecord.setCountTime(time);
+            oldRecord.setCountTime(now);
             oldRecord.setStockPage(stockPage);
-            oldRecord.setSomeinfo(someInfo.toString());
-            oldRecord.setTimeVersion(timeVersion);
-            oldRecord.setCrawlerVersion(crawlerVersion);
             oldRecord.setCrawlCount(oldRecord.getCrawlCount() + 1);
             int up = dfcfRecordService.updateByPrimaryKeySelective(oldRecord);
             log.info("-----> 更新结果:[{}]", up);
-        }
-    }
-
-    private void cleanInfoStringArr(String[] infoStrings) {
-        for (int i = 0; i < infoStrings.length; ++i) {
-            infoStrings[i] = infoStrings[i].equals("-") ? "0" : infoStrings[i];
         }
     }
 
