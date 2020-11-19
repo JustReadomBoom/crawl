@@ -10,8 +10,7 @@
 
 <div class="layui-layout layui-layout-admin">
     <div class="layui-header">
-        <div class="layui-logo" style="width:auto;color: #FFB800;font-size: 18px;">Stock Space （注: 每日15点系统自动更新当日数据,
-            勿频繁主动点击当日爬取,每隔3小时可主动执行）
+        <div class="layui-logo" style="width:auto;color: #FFB800;font-size: 18px;">Stock Space （注: 每日15点系统自动获取当日数据）
         </div>
     </div>
 </div>
@@ -27,20 +26,6 @@
     &nbsp;股票名字：
     <div class="layui-inline">
         <input class="layui-input" name="stockName" id="stockNameDataReload" autocomplete="off">
-    </div>
-    &nbsp;
-    &nbsp;股票类型：
-    <div class="layui-inline">
-        <select class="layui-select" name="stockMarket" id="stockMarketDataReload">
-            <option value="">全部</option>
-            <option value="沪深A股">沪深A股</option>
-            <option value="沪市A股">沪市A股</option>
-            <option value="深市A股">深市A股</option>
-            <option value="创业板">创业板</option>
-            <option value="中小版">中小版</option>
-            <option value="沪市B股">沪市B股</option>
-            <option value="深市B股">深市B股</option>
-        </select>
     </div>
     &nbsp;
     &nbsp;日期选择：
@@ -90,23 +75,20 @@
             , where: {
                 stockCode: '',
                 stockName: '',
-                processDate: dateToStr(new Date()),
-                stockMarket: ''
+                processDate: dateToStr(new Date())
             }
-            , headers:{'AuthToken': localStorage.getItem("AuthToken")}
+            , headers: {'AuthToken': localStorage.getItem("AuthToken")}
             , page: true //开启分页
             , limit: 20
             , limits: [20, 30, 40, 50, 60, 70, 80, 90, 100]
             , totalRow: true //开启合计行
             , cols: [
                 [ //表头
-                    {type: 'numbers', title: 'ID', width: 100, fixed: 'left', totalRowText: '合计：'}
+                    {type: 'numbers', title: 'ID', width: 80, fixed: 'left', totalRowText: '合计：'}
                     , {field: 'processDate', title: '日期', width: 120}
-                    , {field: 'stockRank', title: '排行榜名', width: 120}
-                    , {field: 'stockMarket', title: '股市类型', width: 120}
-                    , {field: 'stockCode', title: '股票代码', width: 120}
-                    , {field: 'stockName', title: '股票名字', width: 120}
-                    , {field: 'priceNew', title: '股票最新价格', width: 140, sort: true, totalRow: true}
+                    , {field: 'stockCode', title: '股票代码', width: 90}
+                    , {field: 'stockName', title: '股票名字', width: 110}
+                    , {field: 'priceNew', title: '最新价格', width: 120, sort: true, totalRow: true}
                     , {
                     field: 'stockChange',
                     title: '涨跌幅',
@@ -115,17 +97,16 @@
                     totalRow: true,
                     templet: '#stockChangeTpl'
                 }
-                    , {field: 'mainNetInflowAmount', title: '主力净额', width: 140, sort: true, totalRow: true}
-                    , {field: 'mainNetProportion', title: '主力净流入占比', width: 150, sort: true, totalRow: true}
-                    , {field: 'superBigPartNetInflowAmount', title: '超大单净额', width: 140, sort: true, totalRow: true}
-                    , {field: 'superBigPartNetProportion', title: '超大单净流入占比', width: 160, sort: true, totalRow: true}
-                    // , {field: 'bigPartNetInflowAmount', title: '大单净额', width: 140, sort: true, totalRow: true}
-                    // , {field: 'bigPartNetProportion', title: '大单净流入', width: 140, sort: true, totalRow: true}
-                    // , {field: 'middlePartNetInflowAmount', title: '中单净额', width: 140, sort: true, totalRow: true}
-                    // , {field: 'middlePartNetProportion', title: '中单净流入', width: 140, sort: true, totalRow: true}
-                    // , {field: 'litterPartNetInflowAmount', title: '小单净额', width: 140, sort: true, totalRow: true}
-                    // , {field: 'litterPartNetProportion', title: '小单净流入', width: 140, sort: true, totalRow: true}
-                    , {field: 'createTime', title: '统计数据时间', width: 180}
+                    , {field: 'changeAmt', title: '涨跌额', width: 90, sort: true, totalRow: true}
+                    , {field: 'openPrice', title: '今开价', width: 90, sort: true, totalRow: true}
+                    , {field: 'maxPrice', title: '最高价', width: 90, sort: true, totalRow: true}
+                    , {field: 'minPrice', title: '最低价', width: 90, sort: true, totalRow: true}
+                    , {field: 'closeLast', title: '昨收', width: 90, sort: true, totalRow: true}
+                    , {field: 'tradCount', title: '成交量(手)', width: 120, sort: true, totalRow: true}
+                    , {field: 'tradAmt', title: '成交额', width: 130, sort: true, totalRow: true}
+                    , {field: 'amplitude', title: '振幅', width: 90, sort: true, totalRow: true}
+                    , {field: 'crawlCount', title: '抓取次数', width: 90, totalRow: true}
+                    , {field: 'uTime', title: '数据更新时间', width: 170}
                     , {fixed: 'right', width: 178, align: 'center', toolbar: '#brokenLineImg'}
                 ]
             ]
@@ -170,7 +151,6 @@
                 var stockCodeDataReload = $('#stockCodeDataReload');
                 var processDateDataReload = $('#dateQueryReload');
                 var stockNameDataReload = $('#stockNameDataReload');
-                var stockMarketDataReload = $('#stockMarketDataReload');
 
                 //执行重载
                 table.reload('dataView', {
@@ -180,8 +160,7 @@
                     , where: {
                         stockCode: stockCodeDataReload.val(),
                         processDate: processDateDataReload.val(),
-                        stockName: stockNameDataReload.val(),
-                        stockMarket: stockMarketDataReload.val()
+                        stockName: stockNameDataReload.val()
                     }
                 }, 'data');
             }
@@ -200,7 +179,7 @@
                     $.ajax({
                         url: "/data/active/crawl",
                         type: "Get",
-                        headers:{'AuthToken': localStorage.getItem("AuthToken")},
+                        headers: {'AuthToken': localStorage.getItem("AuthToken")},
                         success: function (data) {
                             console.log(data);
                             layer.msg(data.msg);
@@ -255,81 +234,53 @@
                 var data = obj.data;
                 if (obj.event === 'detail') {  //查看详情趋势图
                     var stockCode = data.stockCode;
-                    var stockMarket = data.stockMarket;
                     var stockName = data.stockName;
-                    console.log("*******" + stockCode + ",stockMarket=" + stockMarket + ",stockName=" + stockName);
                     // 基于准备好的dom，初始化echarts实例
                     var myChart = echarts.init(document.getElementById('speedChartMain'));
                     // 使用刚指定的配置项和数据显示图表。
                     myChart.setOption(option);
-                    var url = "/data/get/broken/data?stockCode=" + stockCode + "&stockMarket=" + stockMarket;
+                    var url = "/data/get/broken/data?stockCode=" + stockCode;
                     var times = [];  //時間数组（实际用来盛放X轴坐标值）
                     var speeds = [];  //速度数组（实际用来盛放Y坐标值）
 
                     $.ajax({
                         url: url,
                         type: "Get",
-                        headers:{'AuthToken': localStorage.getItem("AuthToken")},
+                        headers: {'AuthToken': localStorage.getItem("AuthToken")},
                         success: function (data) {
                             datas = data.data;
-                            for (var i = 0; i < datas.length; i++) {
-                                times.push(datas[i].processDate);
-                                speeds.push(datas[i].currentPrice);
-                            }
-                            //之前option中legend和 XAxis的data,series 为空，所以现在将数据填充进去
-                            myChart.setOption({    //加载数据图表
-                                xAxis: {
-                                    data: times
-                                },
-                                series: [{
-                                    // 根据名字对应到相应的系列
-                                    name: "最新价格",
-                                    type: 'line',
-                                    data: speeds
-                                }]
-                            });
+                            var code = data.code;
+                            if (1000 === code) {
+                                window.location.href = "https://www.zhouqz.top/zqz/login";
+                            } else {
+                                for (var i = 0; i < datas.length; i++) {
+                                    times.push(datas[i].processDate);
+                                    speeds.push(datas[i].currentPrice);
+                                }
+                                //之前option中legend和 XAxis的data,series 为空，所以现在将数据填充进去
+                                myChart.setOption({    //加载数据图表
+                                    xAxis: {
+                                        data: times
+                                    },
+                                    series: [{
+                                        // 根据名字对应到相应的系列
+                                        name: "最新价格",
+                                        type: 'line',
+                                        data: speeds
+                                    }]
+                                });
 
-                            layer.open({
-                                title: stockMarket + ' - ' + stockName + ' - 近25日最新价格趋势图',
-                                type: 1,
-                                shade: [0.8, '#393D49'],
-                                area: ['1500px', '460px'],
-                                shadeClose: true, //点击遮罩关闭
-                                content: $("#speedChart")
-                            });
+                                layer.open({
+                                    title: stockName + ' - 近25日最新价格趋势图',
+                                    type: 1,
+                                    shade: [0.8, '#393D49'],
+                                    area: ['1500px', '460px'],
+                                    shadeClose: true, //点击遮罩关闭
+                                    content: $("#speedChart")
+                                });
+                            }
                         }
                     });
-
-                    // $.get(url,function (data) {
-                    //     if (data != null) {
-                    //         datas = data.data;
-                    //         for (var i = 0; i < datas.length; i++) {
-                    //             times.push(datas[i].processDate);
-                    //             speeds.push(datas[i].currentPrice);
-                    //         }
-                    //         //之前option中legend和 XAxis的data,series 为空，所以现在将数据填充进去
-                    //         myChart.setOption({    //加载数据图表
-                    //             xAxis: {
-                    //                 data: times
-                    //             },
-                    //             series: [{
-                    //                 // 根据名字对应到相应的系列
-                    //                 name: "最新价格",
-                    //                 type: 'line',
-                    //                 data: speeds
-                    //             }]
-                    //         });
-                    //     }
-                    //
-                    //     layer.open({
-                    //         title: stockMarket + ' - ' + stockName + ' - 近25日最新价格趋势图',
-                    //         type: 1,
-                    //         shade: [0.8, '#393D49'],
-                    //         area: ['1500px', '460px'],
-                    //         shadeClose: true, //点击遮罩关闭
-                    //         content: $("#speedChart")
-                    //     });
-                    // }, "json");
                 } else if (obj.event === 'del') {        //TODO 未实现
                     layer.confirm('真的删除行么', function (index) {
                         obj.del();
@@ -350,9 +301,9 @@
 <!--涨跌幅红绿标记-->
 <script type="text/html" id="stockChangeTpl">
     {{#  if(d.stockChange > 0){ }}
-    <span style="color: red">{{ d.stockChange }} &#8593;  </span>
+    <span style="color: red">{{ d.stockChange }} % &#8593;  </span>
     {{#  } else { }}
-    <span style="color: limegreen">{{ d.stockChange }} &#8595; </span>
+    <span style="color: limegreen">{{ d.stockChange }} % &#8595; </span>
     {{#  } }}
 </script>
 

@@ -7,8 +7,10 @@ import com.zqz.common.enums.StockTypeEnum;
 import com.zqz.common.model.GetBrokenDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.common.utils.DateUtil;
+import com.zqz.dao.entity.DfcfMarket;
 import com.zqz.dao.entity.DfcfRecord;
 import com.zqz.dao.entity.OptRecord;
+import com.zqz.dao.service.DfcfMarketService;
 import com.zqz.dao.service.DfcfRecordService;
 import com.zqz.dao.service.OptRecordService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +37,7 @@ public class BusDataService {
     @Autowired
     private DfcfDataParseService dfcfDataParseService;
     @Autowired
-    private DfcfRecordService dfcfRecordService;
+    private DfcfMarketService dfcfMarketService;
     private ExecutorService executor = Executors.newFixedThreadPool(3);
 
     /**
@@ -99,11 +101,8 @@ public class BusDataService {
      * @Date: 14:04 2020/10/22
      */
     private void doTask(String nowDate) {
-        List<StockTypeEnum> stockTypes = initStock();
         try {
-            stockTypes.forEach(e -> {
-                dfcfDataParseService.crawlData(e.getType());
-            });
+            dfcfDataParseService.crawlMarketData();
             optRecordService.updateStatusByChannelAndDate(OptStatusEnum.SUCCESS.getStatus(), ChannelTypeEnum.DFCF.getType(), nowDate);
         } catch (Exception e) {
             log.error("*****爬取数据异常:[{}]", e.getMessage(), e);
@@ -112,26 +111,20 @@ public class BusDataService {
     }
 
 
-    private List<StockTypeEnum> initStock() {
-        StockTypeEnum[] stockTypes = StockTypeEnum.values();
-        return Arrays.asList(stockTypes);
-    }
-
-
-    public WebResp<GetBrokenDataResp> doGetBrokenData(String stockCode, String stockMarket) {
+    public WebResp<GetBrokenDataResp> doGetBrokenData(String stockCode) {
         WebResp<GetBrokenDataResp> resp = new WebResp<>();
         resp.setCode(RespCodeEnum.SUCCESS.getCode());
         resp.setMsg(RespCodeEnum.SUCCESS.getMsg());
 
         List<GetBrokenDataResp> list = new ArrayList<>();
 
-        List<DfcfRecord> records = dfcfRecordService.getLastDaysData(stockCode, stockMarket);
-        if (records.isEmpty()) {
+        List<DfcfMarket> markets = dfcfMarketService.getLastDaysData(stockCode);
+        if (markets.isEmpty()) {
             resp.setCode(RespCodeEnum.NO_DATA.getCode());
             resp.setMsg(RespCodeEnum.NO_DATA.getMsg());
             return resp;
         }
-        records.forEach(r -> {
+        markets.forEach(r -> {
             GetBrokenDataResp dataResp = new GetBrokenDataResp();
             dataResp.setProcessDate(r.getProcessDate());
             dataResp.setCurrentPrice(r.getPriceNew());

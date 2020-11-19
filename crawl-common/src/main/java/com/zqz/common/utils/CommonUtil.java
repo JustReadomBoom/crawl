@@ -1,5 +1,6 @@
 package com.zqz.common.utils;
 
+import java.math.BigDecimal;
 import java.util.Random;
 
 /**
@@ -9,6 +10,8 @@ import java.util.Random;
  */
 public class CommonUtil {
 
+    private static final String UNIT_STRING_WAN = "万";
+    private static final String UNIT_STRING_YI = "亿";
     private static final String str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     public static String randomJSCode() {
@@ -63,5 +66,27 @@ public class CommonUtil {
             }
         } while (bDone);
         return retStr;
+    }
+
+
+    /**
+     * 装换为万或亿为结尾
+     *
+     * @param amount 结果
+     * @return
+     */
+    public static String formatNum(BigDecimal amount) {
+        if (amount == null) {
+            return "0";
+        }
+        if (amount.compareTo(new BigDecimal(10000)) < 0) {
+            //如果小于1万
+            return amount.stripTrailingZeros().toPlainString();
+        }
+        if (amount.compareTo(new BigDecimal(10000000)) < 0) {
+            //如果大于1万小于1亿
+            return amount.divide(new BigDecimal(10000), 2, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString() + UNIT_STRING_WAN;
+        }
+        return amount.divide(new BigDecimal(100000000), 2, BigDecimal.ROUND_DOWN).stripTrailingZeros().toPlainString() + UNIT_STRING_YI;
     }
 }

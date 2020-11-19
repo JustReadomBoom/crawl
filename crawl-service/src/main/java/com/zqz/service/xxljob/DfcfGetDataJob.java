@@ -5,7 +5,6 @@ import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHandler;
 import com.zqz.common.enums.ChannelTypeEnum;
 import com.zqz.common.enums.OptStatusEnum;
-import com.zqz.common.enums.StockTypeEnum;
 import com.zqz.common.utils.DateUtil;
 import com.zqz.dao.entity.OptRecord;
 import com.zqz.dao.service.OptRecordService;
@@ -13,10 +12,7 @@ import com.zqz.service.DfcfDataParseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @Author: zqz
@@ -56,10 +52,7 @@ public class DfcfGetDataJob extends IJobHandler {
             optRecordService.insert(optRecord);
         }
         try {
-            List<StockTypeEnum> stockTypeList = initStock();
-            stockTypeList.forEach(e -> {
-                dfcfDataParseService.crawlData(e.getType());
-            });
+            dfcfDataParseService.crawlMarketData();
             optRecordService.updateStatusByChannelAndDate(OptStatusEnum.SUCCESS.getStatus(), ChannelTypeEnum.DFCF.getType(), nowDate);
             return SUCCESS;
         } catch (Exception e) {
@@ -67,11 +60,5 @@ public class DfcfGetDataJob extends IJobHandler {
             optRecordService.updateStatusByChannelAndDate(OptStatusEnum.ERROR.getStatus(), ChannelTypeEnum.DFCF.getType(), nowDate);
             return FAIL;
         }
-    }
-
-
-    private List<StockTypeEnum> initStock() {
-        StockTypeEnum[] stockTypes = StockTypeEnum.values();
-        return Arrays.asList(stockTypes);
     }
 }

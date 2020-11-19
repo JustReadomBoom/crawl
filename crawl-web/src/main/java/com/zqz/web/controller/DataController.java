@@ -2,7 +2,7 @@ package com.zqz.web.controller;
 
 import com.zqz.common.enums.RespCodeEnum;
 import com.zqz.common.model.GetBrokenDataResp;
-import com.zqz.common.model.GetDfcfDataResp;
+import com.zqz.common.model.GetMarketDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.common.utils.CommonUtil;
 import com.zqz.common.utils.RedisClient;
@@ -43,13 +43,12 @@ public class DataController {
 
     @GetMapping("/get/dfcf")
     @ResponseBody
-    public WebResp<GetDfcfDataResp> getDfcfData(@RequestParam("page") Integer page,
-                                                @RequestParam("limit") Integer limit,
-                                                @RequestParam("stockCode") String stockCode,
-                                                @RequestParam("processDate") String processDate,
-                                                @RequestParam("stockName") String stockName,
-                                                @RequestParam("stockMarket") String stockMarket,
-                                                HttpServletRequest request) {
+    public WebResp<GetMarketDataResp> getDfcfMarketData(@RequestParam("page") Integer page,
+                                                        @RequestParam("limit") Integer limit,
+                                                        @RequestParam("stockCode") String stockCode,
+                                                        @RequestParam("processDate") String processDate,
+                                                        @RequestParam("stockName") String stockName,
+                                                        HttpServletRequest request) {
         try {
             String authToken = request.getHeader("AuthToken");
             log.info("Header-Token={}", authToken);
@@ -67,10 +66,10 @@ public class DataController {
                 resp.setMsg("未登录，" + HREF);
                 return resp;
             }
-            return getDfcfDataService.doGetDfcfData(page, limit, stockCode, processDate, stockName, stockMarket);
+            return getDfcfDataService.doGetDfcfMarketData(page, limit, stockCode, processDate, stockName);
         } catch (Exception e) {
             log.error("*****getDfcfData异常:[{}]", e.getMessage(), e);
-            WebResp<GetDfcfDataResp> resp = new WebResp<>();
+            WebResp<GetMarketDataResp> resp = new WebResp<>();
             resp.setCode(RespCodeEnum.ERROR.getCode());
             resp.setMsg(RespCodeEnum.ERROR.getMsg());
             return resp;
@@ -110,7 +109,6 @@ public class DataController {
     @GetMapping("/get/broken/data")
     @ResponseBody
     public WebResp<GetBrokenDataResp> getBrokenData(@RequestParam("stockCode") String stockCode,
-                                                    @RequestParam("stockMarket") String stockMarket,
                                                     HttpServletRequest request) {
         try {
             String authToken = request.getHeader("AuthToken");
@@ -129,7 +127,7 @@ public class DataController {
                 resp.setMsg("未登录，" + HREF);
                 return resp;
             }
-            return busDataService.doGetBrokenData(stockCode, stockMarket);
+            return busDataService.doGetBrokenData(stockCode);
         } catch (Exception e) {
             log.error("*****getBrokenData异常:[{}]", e.getMessage(), e);
             WebResp resp = new WebResp<>();
@@ -165,7 +163,7 @@ public class DataController {
         //生成token
         String token = CommonUtil.getRandomString(32);
         //存入redis
-        redisClient.setAndExpire("AuthToken", token, 300, TimeUnit.SECONDS);
+        redisClient.setAndExpire("AuthToken", token, 600, TimeUnit.SECONDS);
         resp.setAuthToken(token);
         return resp;
     }

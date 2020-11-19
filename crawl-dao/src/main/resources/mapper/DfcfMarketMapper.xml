@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zqz.dao.mapper.DfcfMarketMapper">
+  <resultMap id="BaseResultMap" type="com.zqz.dao.entity.DfcfMarket">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="process_date" jdbcType="DATE" property="processDate" />
+    <result column="stock_code" jdbcType="VARCHAR" property="stockCode" />
+    <result column="stock_name" jdbcType="VARCHAR" property="stockName" />
+    <result column="price_new" jdbcType="DECIMAL" property="priceNew" />
+    <result column="stock_change" jdbcType="DECIMAL" property="stockChange" />
+    <result column="change_amt" jdbcType="DECIMAL" property="changeAmt" />
+    <result column="trad_count" jdbcType="DECIMAL" property="tradCount" />
+    <result column="trad_amt" jdbcType="DECIMAL" property="tradAmt" />
+    <result column="amplitude" jdbcType="DECIMAL" property="amplitude" />
+    <result column="max_price" jdbcType="DECIMAL" property="maxPrice" />
+    <result column="min_price" jdbcType="DECIMAL" property="minPrice" />
+    <result column="open_price" jdbcType="DECIMAL" property="openPrice" />
+    <result column="close_last" jdbcType="DECIMAL" property="closeLast" />
+    <result column="crawl_count" jdbcType="INTEGER" property="crawlCount" />
+    <result column="c_time" jdbcType="TIMESTAMP" property="cTime" />
+    <result column="u_time" jdbcType="TIMESTAMP" property="uTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, process_date, stock_code, stock_name, price_new, stock_change, change_amt, trad_count, 
+    trad_amt, amplitude, max_price, min_price, open_price, close_last, crawl_count, c_time, 
+    u_time
+  </sql>
+  <insert id="insert" parameterType="com.zqz.dao.entity.DfcfMarket">
+    insert into dfcf_market (process_date, stock_code, stock_name,
+      price_new, stock_change, change_amt,
+      trad_count, trad_amt, amplitude,
+      max_price, min_price, open_price,
+      close_last, crawl_count)
+    values (#{processDate,jdbcType=DATE}, #{stockCode,jdbcType=VARCHAR}, #{stockName,jdbcType=VARCHAR},
+      #{priceNew,jdbcType=DECIMAL}, #{stockChange,jdbcType=DECIMAL}, #{changeAmt,jdbcType=DECIMAL},
+      #{tradCount,jdbcType=DECIMAL}, #{tradAmt,jdbcType=DECIMAL}, #{amplitude,jdbcType=DECIMAL},
+      #{maxPrice,jdbcType=DECIMAL}, #{minPrice,jdbcType=DECIMAL}, #{openPrice,jdbcType=DECIMAL},
+      #{closeLast,jdbcType=DECIMAL}, #{crawlCount,jdbcType=INTEGER})
+  </insert>
+
+  <select id="getByProcessDateAndStockCode" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from dfcf_market
+    where process_date = #{today}
+    and stock_code = #{stockCode}
+  </select>
+
+  <select id="getByParam" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from dfcf_market
+    where 1 = 1
+    <if test="stockCode != null and stockCode != ''">
+      and stock_code = #{stockCode}
+    </if>
+    <if test="processDate != null and processDate != ''">
+      and process_date = #{processDate}
+    </if>
+    <if test="stockName != null and stockName != ''">
+      and stock_name = #{stockName}
+    </if>
+  </select>
+
+  <select id="getLastDaysData" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from dfcf_market
+    where stock_code = #{stockCode}
+    and process_date > DATE_SUB(CURDATE(), INTERVAL 25 DAY)
+  </select>
+
+  <update id="updateById" parameterType="com.zqz.dao.entity.DfcfMarket">
+    update dfcf_market
+    <set>
+      <if test="processDate != null">
+        process_date = #{processDate,jdbcType=DATE},
+      </if>
+      <if test="stockCode != null">
+        stock_code = #{stockCode,jdbcType=VARCHAR},
+      </if>
+      <if test="stockName != null">
+        stock_name = #{stockName,jdbcType=VARCHAR},
+      </if>
+      <if test="priceNew != null">
+        price_new = #{priceNew,jdbcType=DECIMAL},
+      </if>
+      <if test="stockChange != null">
+        stock_change = #{stockChange,jdbcType=DECIMAL},
+      </if>
+      <if test="changeAmt != null">
+        change_amt = #{changeAmt,jdbcType=DECIMAL},
+      </if>
+      <if test="tradCount != null">
+        trad_count = #{tradCount,jdbcType=DECIMAL},
+      </if>
+      <if test="tradAmt != null">
+        trad_amt = #{tradAmt,jdbcType=DECIMAL},
+      </if>
+      <if test="amplitude != null">
+        amplitude = #{amplitude,jdbcType=DECIMAL},
+      </if>
+      <if test="maxPrice != null">
+        max_price = #{maxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="minPrice != null">
+        min_price = #{minPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="openPrice != null">
+        open_price = #{openPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="closeLast != null">
+        close_last = #{closeLast,jdbcType=DECIMAL},
+      </if>
+      <if test="crawlCount != null">
+        crawl_count = #{crawlCount,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>
