@@ -67,7 +67,7 @@
     <include refid="Base_Column_List"/>
     from dfcf_market
     where stock_code = #{stockCode}
-    and process_date > DATE_SUB(CURDATE(), INTERVAL 25 DAY)
+    and process_date > DATE_SUB(CURDATE(), INTERVAL 31 DAY)
   </select>
 
   <update id="updateById" parameterType="com.zqz.dao.entity.DfcfMarket">
