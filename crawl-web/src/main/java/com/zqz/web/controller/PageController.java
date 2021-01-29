@@ -25,4 +25,9 @@ public class PageController {
         return "login";
     }
 
+    @GetMapping("/snake")
+    public String toSnake(){
+        return "snake";
+    }
+
 }
