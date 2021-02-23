@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zqz.dao.mapper.DbMoviesMapper">
+  <resultMap id="BaseResultMap" type="com.zqz.dao.entity.DbMovies">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="movie_id" jdbcType="VARCHAR" property="movieId" />
+    <result column="directors" jdbcType="VARCHAR" property="directors" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="cover" jdbcType="VARCHAR" property="cover" />
+    <result column="rate" jdbcType="DECIMAL" property="rate" />
+    <result column="casts" jdbcType="VARCHAR" property="casts" />
+    <result column="c_time" jdbcType="TIMESTAMP" property="cTime" />
+    <result column="u_time" jdbcType="TIMESTAMP" property="uTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, movie_id, directors, title, cover, rate, casts, c_time, u_time
+  </sql>
+
+  <insert id="insert" parameterType="com.zqz.dao.entity.DbMovies">
+    insert into db_movies (movie_id, directors, title, cover, rate, casts)
+    values (#{movieId,jdbcType=VARCHAR}, #{directors,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{cover,jdbcType=VARCHAR},
+      #{rate,jdbcType=DECIMAL}, #{casts,jdbcType=VARCHAR})
+  </insert>
+
+  <select id="selectByMovieId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from db_movies
+    where movie_id = #{movieId}
+  </select>
+
+  <select id="getAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from db_movies
+  </select>
+
+  <select id="selectByParam" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from db_movies
+    where 1=1
+    <if test="title != null and title != ''">
+      and title like '%${title}%'
+    </if>
+    <if test="casts != null and casts != ''">
+      and casts like '%${casts}%'
+    </if>
+  </select>
+
+</mapper>

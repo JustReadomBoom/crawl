@@ -35,4 +35,9 @@ public class PageController {
         return "face";
     }
 
+    @GetMapping("/movies")
+    public String toDbMovies(){
+        return "movies";
+    }
+
 }

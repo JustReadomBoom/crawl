@@ -1,12 +1,16 @@
 package com.zqz.web.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.zqz.common.enums.RespCodeEnum;
 import com.zqz.common.model.GetBrokenDataResp;
 import com.zqz.common.model.GetMarketDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.common.utils.CommonUtil;
 import com.zqz.common.utils.RedisClient;
+import com.zqz.dao.entity.DbMovies;
 import com.zqz.dao.entity.User;
+import com.zqz.dao.service.DbMoviesService;
 import com.zqz.dao.service.UserService;
 import com.zqz.service.BusDataService;
 import com.zqz.service.dfcf.GetDfcfDataService;
@@ -18,6 +22,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,6 +42,8 @@ public class DataController {
     private UserService userService;
     @Autowired
     private RedisClient redisClient;
+    @Autowired
+    private DbMoviesService dbMoviesService;
     private static final String HREF = "<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>";
 //    private static final String HREF = "<a href=\"http://localhost:9518/zqz/login\">点我登录</a>";
 
@@ -165,6 +172,31 @@ public class DataController {
         //存入redis
         redisClient.setAndExpire("AuthToken", token, 600, TimeUnit.SECONDS);
         resp.setAuthToken(token);
+        return resp;
+    }
+
+    @GetMapping("/get/movies")
+    @ResponseBody
+    public WebResp<DbMovies> getMoviesData(@RequestParam("page") Integer page,
+                                           @RequestParam("limit") Integer limit,
+                                           @RequestParam("title") String title,
+                                           @RequestParam("casts") String casts){
+
+        WebResp<DbMovies> resp = new WebResp<>();
+        resp.setCode(RespCodeEnum.SUCCESS.getCode());
+        resp.setMsg(RespCodeEnum.SUCCESS.getMsg());
+        Page<Object> startPage = PageHelper.startPage(page, limit);
+        List<DbMovies> movies = dbMoviesService.selectByParam(title, casts);
+        if(movies.isEmpty()){
+            resp.setCode(RespCodeEnum.NO_DATA.getCode());
+            resp.setMsg(RespCodeEnum.NO_DATA.getMsg());
+            return resp;
+        }
+        int total = (int) startPage.getTotal();
+        resp.setCount(total);
+
+        resp.setData(movies);
+
         return resp;
     }
 }

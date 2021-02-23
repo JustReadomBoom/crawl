@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<body>
+<head>
+    <meta charset="utf-8" name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+    <title>伊甸园电影</title>
+    <link rel="stylesheet" href="/js/layui/css/layui.css" media="all">
+</head>
+<body>
+
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo" style="width:1800px;color: #FFB800;font-size: 18px;">～～欢迎来到伊甸园电影～～
+        </div>
+    </div>
+</div>
+
+<div>&nbsp;</div>
+
+<div class="queryDataModel">
+    &nbsp;&nbsp;电影名称：
+    <div class="layui-inline">
+        <input class="layui-input" name="title" id="titleReload" autocomplete="off">
+    </div>
+
+    &nbsp;&nbsp;演员：
+    <div class="layui-inline">
+        <input class="layui-input" name="casts" id="castsReload" autocomplete="off">
+    </div>
+
+    <button class="layui-btn" data-type="reload" style="background-color: #007DDB">搜索</button>
+</div>
+<table class="layui-hide" id="movies" lay-filter="movies_filter"></table>
+
+
+<div class="layui-tab layui-tab-brief" lay-filter="dfcfFilter">
+    <div class="layui-tab-content">
+        <div class="layui-tab-content">
+            <div class="layui-tab-item">
+                <div id="pageDfcf"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="/js/layui/layui.js"></script>
+<script>
+    layui.use(['table', 'laypage', 'layer'], function () {
+        var table = layui.table,
+            laypage = layui.laypage,
+            layer = layui.layer
+        table.render({
+            elem: '#movies',
+            url: '/data/get/movies',
+            id: 'dataMovies',
+            where: {
+                title: '',
+                casts: '',
+            },
+            title: '电影',
+            page: true,
+            limit: 10,
+            limits: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+            cols: [
+                [
+                    {type: 'numbers', title: '序号', width: 120, style: 'background-color: #cec7c7'}
+                    , {field: 'title', title: '电影名', width: 300, style: 'background-color: #cec7c7'}
+                    , {field: 'cover', title: '封面', width:180, templet: '#temImg', style: 'background-color: #cec7c7'}
+                    , {field: 'casts', title: '演员', width: 700, style: 'background-color: #cec7c7'}
+                    , {field: 'rate', title: '评分', sort: true, width: 120, style: 'background-color: #cec7c7'}
+                    , {field: 'directors', title: '导演', width: 250, style: 'background-color: #cec7c7'}
+                    , {field: 'cTime', title: '收录时间', width: 230, style: 'background-color: #cec7c7'}
+                ]
+            ],
+            done: function (res, curr, count) {
+                $('tr').css({'background-color': '#FFB800', 'color': '#161616'});
+            }
+        });
+
+
+        //分页
+        laypage.render({
+            elem: 'pageDfcf' //分页容器的id
+            , count: 179 //总页数
+            , skip: true //开启跳页
+            , jump: function (obj, first) {
+                if (!first) {
+                    layer.msg('第' + obj.curr + '页', {offset: 'b'});
+                }
+            }
+        });
+
+        //搜索
+        var $ = layui.$, active = {
+            reload: function () {
+                var titleReload = $('#titleReload');
+                var castsReload = $('#castsReload');
+
+                //执行重载
+                table.reload('dataMovies', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        title: titleReload.val(),
+                        casts: castsReload.val()
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.queryDataModel .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+
+</script>
+
+<script type="text/html" id="temImg">
+    <div><img src="{{d.cover}}"></div>
+</script>
+
+<style type="text/css">
+    .layui-table-cell{
+        text-align:center;
+        height: auto;
+        white-space: normal;
+    }
+</style>
+
+
+</body>
+</html>
