@@ -66,17 +66,17 @@
             limits: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
             cols: [
                 [
-                    {type: 'numbers', title: '序号', width: 120, style: 'background-color: #cec7c7'}
-                    , {field: 'title', title: '电影名', width: 300, style: 'background-color: #cec7c7'}
-                    , {field: 'cover', title: '封面', width:180, templet: '#temImg', style: 'background-color: #cec7c7'}
-                    , {field: 'casts', title: '演员', width: 700, style: 'background-color: #cec7c7'}
-                    , {field: 'rate', title: '评分', sort: true, width: 120, style: 'background-color: #cec7c7'}
-                    , {field: 'directors', title: '导演', width: 250, style: 'background-color: #cec7c7'}
-                    , {field: 'cTime', title: '收录时间', width: 230, style: 'background-color: #cec7c7'}
+                    {type: 'numbers', title: '序号', width: 120}
+                    , {field: 'title', title: '电影名', width: 300}
+                    , {field: 'cover', title: '封面', width:180, templet: '#temImg'}
+                    , {field: 'casts', title: '演员', width: 700}
+                    , {field: 'rate', title: '评分', sort: true, width: 120}
+                    , {field: 'directors', title: '导演', width: 250}
+                    , {field: 'cTime', title: '收录时间', width: 230}
                 ]
             ],
             done: function (res, curr, count) {
-                $('tr').css({'background-color': '#FFB800', 'color': '#161616'});
+                $('tr').css({'background-color': '#fff7fb', 'color': '#161616'});
             }
         });
 
