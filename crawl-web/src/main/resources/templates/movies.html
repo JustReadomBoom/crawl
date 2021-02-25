@@ -81,6 +81,8 @@
         });
 
 
+
+
         //分页
         laypage.render({
             elem: 'pageDfcf' //分页容器的id
@@ -110,6 +112,8 @@
                     }
                 }, 'data');
             }
+
+
         };
 
         $('.queryDataModel .layui-btn').on('click', function () {
@@ -122,8 +126,36 @@
 </script>
 
 <script type="text/html" id="temImg">
-    <div><img src="{{d.cover}}"></div>
+    <div onclick="showBigMovieImg(this)"><img src="{{d.cover}}"></div>
 </script>
+
+<script type="text/javascript">
+    function showBigMovieImg(t) {
+        var $ = layui.$;
+        var t = $(t).find("img");
+        //页面层
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            shadeClose: true, //开启遮罩关闭
+            end: function (index, layero) {
+                return false;
+            },
+            content: '<div style="text-align:center"><img src="' + $(t).attr('src') + '" /></div>'
+        });
+    }
+
+</script>
+
+<script>
+
+
+</script>
+
+
+
+
 
 <style type="text/css">
     .layui-table-cell{
