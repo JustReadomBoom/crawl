@@ -1,5 +1,7 @@
 package com.zqz.common.utils;
 
+import com.zqz.common.enums.WeekEnum;
+
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -178,6 +180,27 @@ public class DateUtil {
         long diff = lastDate.getTime() - beginDate.getTime();
         long compareHour = diff % nd / nh + day * 24;
         return  (int) (compareHour - day * 24);
+    }
+
+
+    public static String dateToWeek(Date date) {
+        String[] weekDays = {WeekEnum.SUNDAY.getWeek(),
+                WeekEnum.MONDAY.getWeek(),
+                WeekEnum.TUESDAY.getWeek(),
+                WeekEnum.WEDNESDAY.getWeek(),
+                WeekEnum.THURSDAY.getWeek(),
+                WeekEnum.FRIDAY.getWeek(),
+                WeekEnum.SATURDAY.getWeek()};
+        Calendar cal = Calendar.getInstance(); // 获得一个日历
+        try {
+            cal.setTime(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int w = cal.get(Calendar.DAY_OF_WEEK) - 1; // 指示一个星期中的某天。
+        if (w < 0)
+            w = 0;
+        return weekDays[w];
     }
 
     public static void main(String[] args) {

@@ -19,7 +19,8 @@ public enum RespCodeEnum {
     SELECT_DATE(3, "请选择日期"),
     STOP_DO(4, "3小时内不允许再次操作"),
     NO_USER(5, "用户不存在"),
-    ERROR_PWD(6, "密码错误");
+    ERROR_PWD(6, "密码错误"),
+    WEEK_LAST(7, "周末未开盘");
 
     private Integer code;
     private String msg;

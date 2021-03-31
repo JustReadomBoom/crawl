@@ -5,6 +5,8 @@ import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHandler;
 import com.zqz.common.enums.ChannelTypeEnum;
 import com.zqz.common.enums.OptStatusEnum;
+import com.zqz.common.enums.RespCodeEnum;
+import com.zqz.common.enums.WeekEnum;
 import com.zqz.common.utils.DateUtil;
 import com.zqz.dao.entity.OptRecord;
 import com.zqz.dao.service.OptRecordService;
@@ -32,6 +34,11 @@ public class DfcfGetDataJob extends IJobHandler {
     public ReturnT<String> execute(String s) throws Exception {
         log.info("===============DfcfGetDataJob Start================");
         Date now = new Date();
+        String week = DateUtil.dateToWeek(now);
+        if(WeekEnum.SATURDAY.getWeek().equals(week) || WeekEnum.SUNDAY.getWeek().equals(week)){
+            log.info("------> 周末未开盘");
+            return SUCCESS;
+        }
         String nowDate = DateUtil.getDateFormat3Str(now);
         OptRecord optRecord;
         optRecord = optRecordService.getRecordByChannelAndDate(ChannelTypeEnum.DFCF.getType(), nowDate);

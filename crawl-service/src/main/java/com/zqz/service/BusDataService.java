@@ -1,9 +1,6 @@
 package com.zqz.service;
 
-import com.zqz.common.enums.ChannelTypeEnum;
-import com.zqz.common.enums.OptStatusEnum;
-import com.zqz.common.enums.RespCodeEnum;
-import com.zqz.common.enums.StockTypeEnum;
+import com.zqz.common.enums.*;
 import com.zqz.common.model.GetBrokenDataResp;
 import com.zqz.common.model.WebResp;
 import com.zqz.common.utils.DateUtil;
@@ -54,6 +51,14 @@ public class BusDataService {
         Date now = new Date();
         String nowDate = DateUtil.getDateFormat3Str(now);
         log.info("-----> 开始手动触发日期:[{}]的数据爬取", nowDate);
+        String week = DateUtil.dateToWeek(now);
+        if(WeekEnum.SATURDAY.getWeek().equals(week) || WeekEnum.SUNDAY.getWeek().equals(week)){
+            log.info("------> 周末未开盘");
+            resp.setCode(RespCodeEnum.WEEK_LAST.getCode());
+            resp.setMsg(RespCodeEnum.WEEK_LAST.getMsg());
+            return resp;
+
+        }
         OptRecord optRecord;
         optRecord = optRecordService.getRecordByChannelAndDate(ChannelTypeEnum.DFCF.getType(), nowDate);
         if (null != optRecord) {
