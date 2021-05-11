@@ -58,7 +58,7 @@
       and process_date = #{processDate}
     </if>
     <if test="stockName != null and stockName != ''">
-      and stock_name = #{stockName}
+      and stock_name like '%${stockName}%'
     </if>
   </select>
 

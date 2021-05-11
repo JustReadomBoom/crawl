@@ -36,6 +36,8 @@
     <button class="layui-btn" data-type="reload" style="background-color: #007DDB">搜索</button>
     &nbsp;&nbsp;&nbsp;&nbsp;
     <button class="layui-btn" style="background-color: limegreen" id="activeCrawl">爬取当日</button>
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <button class="layui-btn" style="background-color: olive" id="logout">退出</button>
 </div>
 
 <table class="layui-hide" id="dfcf" lay-filter="dfcfFilter"></table>
@@ -166,8 +168,20 @@
             }
         };
 
+        //主动爬取
         $("#activeCrawl").click(function () {
             activeCrawl();
+        });
+
+        //登出
+        $("#logout").click(function () {
+            let token = localStorage.getItem("AuthToken");
+            if (null !== token) {
+                localStorage.removeItem("AuthToken");
+            }
+            window.location.href = "https://www.zhouqz.top/zqz/login";
+            // window.location.href = "http://localhost:9518/zqz/login";
+
         });
 
         //主动爬取
