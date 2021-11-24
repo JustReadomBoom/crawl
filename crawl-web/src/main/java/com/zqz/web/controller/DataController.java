@@ -44,7 +44,7 @@ public class DataController {
     private RedisClient redisClient;
     @Autowired
     private DbMoviesService dbMoviesService;
-    private static final String HREF = "<a href=\"https://www.zhouqz.top/zqz/login\">点我登录</a>";
+    private static final String HREF = "<a href=\"http://39.98.218.231:9518/zqz/login\">点我登录</a>";
 //    private static final String HREF = "<a href=\"http://localhost:9518/zqz/login\">点我登录</a>";
 
 
