@@ -179,7 +179,8 @@
             if (null !== token) {
                 localStorage.removeItem("AuthToken");
             }
-            window.location.href = "https://www.zhouqz.top/zqz/login";
+            window.location.href = "http://39.98.218.231:9518/zqz/login";
+            // window.location.href = "https://www.zhouqz.top/zqz/login";
             // window.location.href = "http://localhost:9518/zqz/login";
 
         });
@@ -265,7 +266,8 @@
                             datas = data.data;
                             var code = data.code;
                             if (1000 === code) {
-                                window.location.href = "https://www.zhouqz.top/zqz/login";
+                                // window.location.href = "https://www.zhouqz.top/zqz/login";
+                                window.location.href = "http://39.98.218.231:9518/zqz/login";
                             } else {
                                 for (var i = 0; i < datas.length; i++) {
                                     times.push(datas[i].processDate);
